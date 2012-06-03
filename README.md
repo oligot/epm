@@ -1,4 +1,4 @@
 epm
 ===
 
-Eiffel Package Manager based on npm
+Eiffel Package Manager based on npm (http://npmjs.org/)
