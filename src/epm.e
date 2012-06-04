@@ -97,7 +97,7 @@ feature {NONE} -- Implementation
 						io.put_string ("Installing package " + l_package.name + " version " + l_package.version + "...")
 						File_system.recursive_copy_directory (l_directory.name,
 							File_system.pathname (Execution_environment.variable_value (Eiffelhub_name),
-							File_system.dirname (l_directory.name)))
+							File_system.basename (l_directory.name)))
 						io.put_string ("done")
 						io.put_new_line
 					else
