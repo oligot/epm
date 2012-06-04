@@ -30,7 +30,7 @@ feature {NONE} -- Initialization
 			parser.set_application_description ("Eiffel Package Manager")
 			parser.set_parameters_description ("install package")
 			parser.parse_arguments
-			if parser.parameters.count /= 2 or else not parser.parameters.first.is_equal ("install") then
+			if parser.parameters.count /= 1 or else not parser.parameters.first.is_equal ("install") then
 				parser.help_option.display_help (parser)
 			else
 				install_package
@@ -74,7 +74,7 @@ feature {NONE} -- Implementation
 			check_eiffelhub
 			create l_converter.make
 			json.add_converter (l_converter)
-			create l_directory.make (parser.parameters.item (2))
+			create l_directory.make (File_system.cwd)
 			l_directory.open_read
 			if l_directory.is_open_read then
 				create l_file.make (file_system.pathname (l_directory.name, Package_file_name))
