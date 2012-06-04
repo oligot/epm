@@ -125,7 +125,7 @@ feature {NONE} -- Implementation
 			io.put_string ("Package name: (" + l_default_package_name + ") ")
 			io.read_line
 			if not io.last_string.is_empty then
-				l_name := io.last_string
+				l_name := io.last_string.twin
 			else
 				l_name := l_default_package_name
 			end
@@ -133,13 +133,13 @@ feature {NONE} -- Implementation
 			io.put_string ("Description: ")
 			io.read_line
 			if not io.last_string.is_empty then
-				l_description := io.last_string
+				l_description := io.last_string.twin
 			end
 			io.put_new_line
 			io.put_string ("Package version: (" + Default_version + ") ")
 			io.read_line
 			if not io.last_string.is_empty then
-				l_version := io.last_string
+				l_version := io.last_string.twin
 			else
 				l_version := Default_version
 			end
@@ -157,8 +157,8 @@ feature {NONE} -- Implementation
 				io.put_new_line
 				io.put_new_line
 				io.put_string ("Is this ok? (yes) ")
-				io.read_character
-				if io.last_character = 'y' then
+				io.read_line
+				if io.last_string.is_empty or else io.last_string.is_equal ("y") or else io.last_string.is_equal ("yes") then
 					create l_file.make (l_file_name)
 					l_file.open_write
 					if l_file.is_open_write then
