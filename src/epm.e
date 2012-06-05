@@ -36,7 +36,7 @@ feature {NONE} -- Initialization
 			l_parser.set_application_description ("Eiffel Package Manager")
 			l_parser.set_parameters_description ("<command> where <command> is one of: init, install, pack")
 			l_parser.parse_arguments
-			if l_parser.parameters.count /= 1 then
+			if l_parser.parameters.count < 1 then
 				l_parser.help_option.display_help (l_parser)
 			else
 				create l_commands.make (3)
@@ -46,14 +46,14 @@ feature {NONE} -- Initialization
 				if not l_commands.has (l_parser.parameters.first) then
 					l_parser.help_option.display_help (l_parser)
 				else
-					l_commands.item (l_parser.parameters.first).call ([])
+					l_commands.item (l_parser.parameters.first).call ([l_parser.parameters])
 				end
 			end
 		end
 
 feature -- Basic operations
 
-	init
+	init (parameters: DS_LIST [STRING])
 			-- Interactively create a package.json file.
 		local
 			l_default_package_name: STRING
@@ -114,16 +114,42 @@ feature -- Basic operations
 			end
 		end
 
-	install
+	install (parameters: DS_LIST [STRING])
 			-- Install a package.
 		local
+			l_execution_environment: EXECUTION_ENVIRONMENT
+			l_file, l_epm_directory, l_cwd, l_directory_name, l_command: STRING
 			l_directory: KL_DIRECTORY
+			i: INTEGER
 		do
+			l_epm_directory := "/tmp/epm"
 			check_eiffelhub
-			create l_directory.make (File_system.cwd)
+			if parameters.count > 1 then
+				l_file := parameters.item (2)
+				File_system.create_directory (l_epm_directory)
+				l_cwd := File_system.cwd
+				File_system.cd (l_epm_directory)
+				l_command := "tar xfz " + File_system.pathname (l_cwd, l_file)
+				create l_execution_environment
+				l_execution_environment.system (l_command)
+				if l_execution_environment.return_code /= 0 then
+					io.put_string ("Error code " + l_execution_environment.return_code.out + " while running " + l_command)
+				else
+					i := l_file.index_of ('-', 1)
+					if i > 0 then
+						l_directory_name := File_system.pathname (l_epm_directory, l_file.substring (1, i - 1))
+					else
+						io.put_string ("Wrong file name format " + l_file)
+					end
+				end
+				File_system.cd (l_cwd)
+			else
+				l_directory_name := File_system.cwd
+			end
+			create l_directory.make (l_directory_name)
 			l_directory.open_read
 			if l_directory.is_open_read then
-				read_package
+				read_package (l_directory.name)
 				if package /= Void then
 					io.put_string ("Installing package " + package.name + " version " + package.version + "...")
 					File_system.recursive_copy_directory (l_directory.name,
@@ -135,15 +161,16 @@ feature -- Basic operations
 			else
 				io.put_string ("Unable to open directory " + l_directory.name)
 			end
+			File_system.delete_directory (l_epm_directory)
 		end
 
-	pack
+	pack (parameters: DS_LIST [STRING])
 			-- Create a tarball from a package.
 		local
 			l_execution_environment: EXECUTION_ENVIRONMENT
 			l_command, l_cwd, l_package: STRING
 		do
-			read_package
+			read_package (File_system.cwd)
 			if package /= Void then
 				l_cwd := File_system.cwd
 				File_system.cd ("..")
@@ -190,13 +217,13 @@ feature {NONE} -- Implementation
 			end
 		end
 
-	read_package
+	read_package (a_directory: STRING)
 			-- Read the package definition.
 		local
 			l_file: KL_TEXT_INPUT_FILE
 			l_parser: JSON_PARSER
 		do
-			create l_file.make (file_system.pathname (File_system.cwd, Package_file_name))
+			create l_file.make (file_system.pathname (a_directory, Package_file_name))
 			l_file.open_read
 			if l_file.is_open_read then
 				l_file.read_string (l_file.count)
