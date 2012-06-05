@@ -123,7 +123,7 @@ feature -- Basic operations
 			i: INTEGER
 		do
 			l_epm_directory := "/tmp/epm"
-			check_eiffelhub
+			check_epm_libraries
 			if parameters.count > 1 then
 				l_file := parameters.item (2)
 				File_system.create_directory (l_epm_directory)
@@ -152,8 +152,8 @@ feature -- Basic operations
 				read_package (l_directory.name)
 				if package /= Void then
 					io.put_string ("Installing package " + package.name + " version " + package.version + "...")
-					File_system.recursive_copy_directory (l_directory.name,
-						File_system.pathname (Execution_environment.variable_value (Eiffelhub_name),
+					File_system.recursive_copy_directory (l_directory.name, File_system.pathname (
+						Execution_environment.interpreted_string (Execution_environment.variable_value (Epm_libraries_name)),
 						File_system.basename (l_directory.name)))
 					io.put_string ("done")
 					io.put_new_line
@@ -194,11 +194,11 @@ feature {NONE} -- Implementation
 	Package_file_name: STRING = "package.json"
 			-- Package file name
 
-	Eiffelhub_name: STRING = "EIFFELHUB"
-			-- Eiffelhub environment variable name
+	Epm_libraries_name: STRING = "EPM_LIBRARIES"
+			-- Epm libraries environment variable name
 
-	Eiffelhub_default_value: STRING = "$HOME/eiffelhub"
-			-- Eiffelhub environment variable default value
+	Epm_libraries_default_value: STRING = "$HOME/epm_libraries"
+			-- Epm libraries environment variable default value
 
 	Default_version: STRING = "0.0.0"
 			-- Default version number
@@ -206,14 +206,20 @@ feature {NONE} -- Implementation
 	package: EPM_PACKAGE
 			-- Package definition
 
-	check_eiffelhub
-			-- Check that the environment variable `Eiffelhub_name' is defined.
+	check_epm_libraries
+			-- Check that the environment variable `Epm_libraries_name' is defined
+			-- and that the directory corresponding to the value of `Epm_libraries_name' exists.
 		local
-			l_value: STRING
+			l_value, l_directory: STRING
 		do
-			l_value := Execution_environment.variable_value (Eiffelhub_name)
+			l_value := Execution_environment.variable_value (Epm_libraries_name)
 			if l_value = Void then
-				Execution_environment.set_variable_value (Eiffelhub_default_value, Eiffelhub_name)
+				Execution_environment.set_variable_value (Epm_libraries_name, Epm_libraries_default_value)
+				l_value := Execution_environment.variable_value (Epm_libraries_name)
+			end
+			l_directory := Execution_environment.interpreted_string (l_value)
+			if not File_system.directory_exists (l_directory) then
+				File_system.recursive_create_directory (l_directory)
 			end
 		end
 
