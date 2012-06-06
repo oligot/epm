@@ -15,6 +15,7 @@ inherit
 	KL_SHARED_ARGUMENTS
 	KL_SHARED_EXECUTION_ENVIRONMENT
 	KL_SHARED_FILE_SYSTEM
+	KL_SHARED_OPERATING_SYSTEM
 	SHARED_EJSON
 
 create
@@ -117,73 +118,95 @@ feature -- Basic operations
 	install (parameters: DS_LIST [STRING])
 			-- Install a package.
 		local
-			l_execution_environment: EXECUTION_ENVIRONMENT
-			l_file, l_epm_directory, l_cwd, l_directory_name, l_command: STRING
+			l_file, l_epm_directory, l_cwd, l_directory_name, l_command, l_tar_file: STRING
 			l_directory: KL_DIRECTORY
 			i: INTEGER
 		do
-			l_epm_directory := "/tmp/epm"
+			l_epm_directory := default_epm_tmp_directory
 			check_epm_libraries
 			if parameters.count > 1 then
 				l_file := parameters.item (2)
+				if File_system.is_relative_pathname (l_file) then
+					l_file := File_system.pathname (File_system.cwd, l_file)
+				end
 				File_system.create_directory (l_epm_directory)
 				l_cwd := File_system.cwd
 				File_system.cd (l_epm_directory)
-				l_command := "tar xfz " + File_system.pathname (l_cwd, l_file)
-				create l_execution_environment
-				l_execution_environment.system (l_command)
-				if l_execution_environment.return_code /= 0 then
-					io.put_string ("Error code " + l_execution_environment.return_code.out + " while running " + l_command)
+				File_system.copy_file (l_file, File_system.pathname (l_epm_directory, File_system.basename (l_file)))
+				l_file := File_system.basename (l_file)
+				l_command := "gunzip " + l_file
+				base_execution_environment.system (l_command)
+				if base_execution_environment.return_code /= 0 then
+					io.put_string ("Error code " + base_execution_environment.return_code.out + " while running " + l_command)
 				else
-					i := l_file.index_of ('-', 1)
-					if i > 0 then
-						l_directory_name := File_system.pathname (l_epm_directory, l_file.substring (1, i - 1))
+					l_tar_file := l_file.substring (1, l_file.count - 3)
+					l_command := "tar xf " + l_tar_file
+					base_execution_environment.system (l_command)
+					if base_execution_environment.return_code /= 0 then
+						io.put_string ("Error code " + base_execution_environment.return_code.out + " while running " + l_command)
 					else
-						io.put_string ("Wrong file name format " + l_file)
+						l_file := File_system.basename (l_file)
+						i := l_file.index_of ('-', 1)
+						if i > 0 then
+							l_directory_name := File_system.pathname (l_epm_directory, l_file.substring (1, i - 1))
+						else
+							io.put_string ("Wrong file name format " + l_file)
+						end
 					end
 				end
 				File_system.cd (l_cwd)
 			else
 				l_directory_name := File_system.cwd
 			end
-			create l_directory.make (l_directory_name)
-			l_directory.open_read
-			if l_directory.is_open_read then
-				read_package (l_directory.name)
-				if package /= Void then
-					io.put_string ("Installing package " + package.name + " version " + package.version + "...")
-					File_system.recursive_copy_directory (l_directory.name, File_system.pathname (
-						Execution_environment.interpreted_string (Execution_environment.variable_value (Epm_libraries_name)),
-						File_system.basename (l_directory.name)))
-					io.put_string ("done")
-					io.put_new_line
-                end
-			else
-				io.put_string ("Unable to open directory " + l_directory.name)
+			if l_directory_name /= Void then
+				create l_directory.make (l_directory_name)
+				l_directory.open_read
+				if l_directory.is_open_read then
+					read_package (l_directory.name)
+					if package /= Void then
+						io.put_string ("Installing package " + package.name + " version " + package.version + "...")
+						File_system.recursive_copy_directory (l_directory.name, File_system.pathname (
+							Execution_environment.interpreted_string (Execution_environment.variable_value (Epm_libraries_name)),
+							File_system.basename (l_directory.name)))
+						io.put_string ("done")
+						io.put_new_line
+	                end
+	                l_directory.close
+				else
+					io.put_string ("Unable to open directory " + l_directory.name)
+				end
 			end
-			File_system.delete_directory (l_epm_directory)
+--			File_system.recursive_delete_directory (l_epm_directory)
 		end
 
 	pack (parameters: DS_LIST [STRING])
 			-- Create a tarball from a package.
 		local
-			l_execution_environment: EXECUTION_ENVIRONMENT
-			l_command, l_cwd, l_package: STRING
+			l_command, l_cwd, l_tar_package, l_package: STRING
+			l_return_code: INTEGER
 		do
 			read_package (File_system.cwd)
 			if package /= Void then
 				l_cwd := File_system.cwd
 				File_system.cd ("..")
-				l_package := package.name + "-" + package.version + ".tgz"
-				l_command := "tar cfz " + l_package + " " + File_system.basename (l_cwd)
-				create l_execution_environment
-				l_execution_environment.system (l_command)
-				if l_execution_environment.return_code /= 0 then
-					io.put_string ("Error code " + l_execution_environment.return_code.out + " while running " + l_command)
+				l_tar_package := package.name + "-" + package.version + ".tar"
+				l_package := l_tar_package + ".gz"
+				l_command := "tar cf " + l_tar_package + " " + File_system.basename (l_cwd)
+				base_execution_environment.system (l_command)
+				l_return_code := base_execution_environment.return_code
+				if l_return_code /= 0 then
+					io.put_string ("Error code " + l_return_code.out + " while running " + l_command)
 				else
-					File_system.rename_file (l_package, File_system.pathname (File_system.basename (l_cwd), l_package))
-					io.put_string ("./" + l_package)
-					io.put_new_line
+					l_command := "gzip " + l_tar_package
+					base_execution_environment.system (l_command)
+					l_return_code := base_execution_environment.return_code
+					if l_return_code /= 0 then
+						io.put_string ("Error code " + l_return_code.out + " while running " + l_command)
+					else
+						File_system.rename_file (l_package, File_system.pathname (File_system.basename (l_cwd), l_package))
+						io.put_string ("./" + l_package)
+						io.put_new_line
+					end
 				end
 				File_system.cd (l_cwd)
 			end
@@ -197,14 +220,37 @@ feature {NONE} -- Implementation
 	Epm_libraries_name: STRING = "EPM_LIBRARIES"
 			-- Epm libraries environment variable name
 
-	Epm_libraries_default_value: STRING = "$HOME/epm_libraries"
-			-- Epm libraries environment variable default value
-
 	Default_version: STRING = "0.0.0"
 			-- Default version number
 
 	package: EPM_PACKAGE
 			-- Package definition
+
+	base_execution_environment: EXECUTION_ENVIRONMENT
+			-- Execution environment
+		once
+			create Result
+		end
+
+	Epm_libraries_default_value: STRING
+			-- Epm libraries environment variable default value
+		do
+			if Operating_system.Is_unix then
+				Result := "$HOME/epm_libraries"
+			else
+				Result := "C:\epm_libraries"
+			end
+		end
+
+	default_epm_tmp_directory: STRING
+			-- Default epm temporary directory.
+		do
+			if Operating_system.Is_unix then
+				Result := "/tmp/epm"
+			else
+				Result := "C:\temp\epm"
+			end
+		end
 
 	check_epm_libraries
 			-- Check that the environment variable `Epm_libraries_name' is defined
