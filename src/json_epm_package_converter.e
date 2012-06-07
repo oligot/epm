@@ -55,8 +55,19 @@ feature -- Conversion
 
 feature {NONE} -- Implementation
 
-	K_name: STRING = "name"
-	K_version: STRING = "version"
-	K_description: STRING = "description"
+	K_name: JSON_STRING
+		do
+			create Result.make_json ("name")
+		end
+
+	K_version: JSON_STRING
+		do
+			create Result.make_json ("version")
+		end
+
+	K_description: JSON_STRING
+		do
+			create Result.make_json ("description")
+		end
 
 end
