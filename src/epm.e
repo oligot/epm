@@ -118,21 +118,21 @@ feature -- Basic operations
 	install (parameters: DS_LIST [STRING])
 			-- Install a package.
 		local
-			l_file, l_epm_directory, l_cwd, l_directory_name, l_command, l_tar_file: STRING
+			l_file, l_cwd, l_directory_name, l_command, l_tar_file: STRING
 			l_directory: KL_DIRECTORY
 			i: INTEGER
 		do
-			l_epm_directory := default_epm_tmp_directory
+			File_system.recursive_delete_directory (default_epm_tmp_directory)
+			File_system.create_directory (default_epm_tmp_directory)
 			check_epm_libraries
 			if parameters.count > 1 then
 				l_file := parameters.item (2)
 				if File_system.is_relative_pathname (l_file) then
 					l_file := File_system.pathname (File_system.cwd, l_file)
 				end
-				File_system.create_directory (l_epm_directory)
 				l_cwd := File_system.cwd
-				File_system.cd (l_epm_directory)
-				File_system.copy_file (l_file, File_system.pathname (l_epm_directory, File_system.basename (l_file)))
+				File_system.cd (default_epm_tmp_directory)
+				File_system.copy_file (l_file, File_system.pathname (default_epm_tmp_directory, File_system.basename (l_file)))
 				l_file := File_system.basename (l_file)
 				l_command := "gunzip " + l_file
 				base_execution_environment.system (l_command)
@@ -148,7 +148,7 @@ feature -- Basic operations
 						l_file := File_system.basename (l_file)
 						i := l_file.index_of ('-', 1)
 						if i > 0 then
-							l_directory_name := File_system.pathname (l_epm_directory, l_file.substring (1, i - 1))
+							l_directory_name := File_system.pathname (default_epm_tmp_directory, l_file.substring (1, i - 1))
 						else
 							io.put_string ("Wrong file name format " + l_file)
 						end
@@ -176,7 +176,6 @@ feature -- Basic operations
 					io.put_string ("Unable to open directory " + l_directory.name)
 				end
 			end
---			File_system.recursive_delete_directory (l_epm_directory)
 		end
 
 	pack (parameters: DS_LIST [STRING])
@@ -185,6 +184,8 @@ feature -- Basic operations
 			l_command, l_cwd, l_tar_package, l_package: STRING
 			l_return_code: INTEGER
 		do
+			File_system.recursive_delete_directory (default_epm_tmp_directory)
+			File_system.create_directory (default_epm_tmp_directory)
 			read_package (File_system.cwd)
 			if package /= Void then
 				l_cwd := File_system.cwd
