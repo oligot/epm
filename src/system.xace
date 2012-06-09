@@ -12,6 +12,7 @@
 	<root class="EPM" creation="make"/>
 	<option name="console_application" value="true"/>
 	<option name="full_class_checking" value="true"/>
+	<option name="syntax" value="standard"/>
 	<option unless="${DEBUG}">
 		<option name="assertion" value="none"/>
 		<option name="garbage_collector" value="none"/>
