@@ -17,7 +17,7 @@ feature {NONE} -- Initialization
 		do
 			name := a_name
 			version := a_version
-			create keywords.make
+			create dependencies.make_default
 		ensure
 			name_set: name = a_name
 			version_set: version = a_version
@@ -34,8 +34,7 @@ feature -- Access
 	description: detachable STRING
 			-- Description
 
-	keywords: DS_LINKED_LIST [STRING]
-			-- Keywords
+	dependencies: DS_HASH_TABLE [STRING_32, STRING_32]
 
 feature -- Element change
 
@@ -45,6 +44,14 @@ feature -- Element change
 			description := a_description
 		ensure
 			description_set: description = a_description
+		end
+
+	set_dependencies (a_dependencies: like dependencies)
+			-- Set `dependencies' to `a_dependencies'.
+		do
+			dependencies := a_dependencies
+		ensure
+			dependencies_set: dependencies = a_dependencies
 		end
 
 end

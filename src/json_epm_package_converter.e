@@ -31,6 +31,8 @@ feature -- Conversion
     from_json (j: like value): detachable like object
         local
             l_name, l_version, l_description: STRING_32
+            l_json_dependencies: HASH_TABLE [ANY, STRING_GENERAL]
+            l_dependencies: DS_HASH_TABLE [STRING_32, STRING_32]
         do
             l_name ?= json.object (j.item (K_name), Void)
             l_version ?= json.object (j.item (K_version), Void)
@@ -41,33 +43,30 @@ feature -- Conversion
             if l_description /= Void then
             	Result.set_description (l_description)
             end
+            l_json_dependencies ?= json.object (j.item (K_dependencies), Void)
+            if l_json_dependencies /= Void then
+            	create l_dependencies.make_equal (l_json_dependencies.count)
+            	across
+            		l_json_dependencies as l_cursor
+            	loop
+            		if attached {STRING_32} l_cursor.key as l_key and attached {STRING_32} l_cursor.item as l_value then
+            			l_dependencies.force_last (l_value, l_key)
+            		end
+            	end
+            	Result.set_dependencies (l_dependencies)
+            end
         end
 
     to_json (o: like object): like value
         do
-            create Result.make
-            Result.put (json.value (o.name), K_name)
-            Result.put (json.value (o.version), K_version)
-            if o.description /= Void then
-            	Result.put (json.value (o.description), K_description)
-            end
+
         end
 
 feature {NONE} -- Implementation
 
-	K_name: JSON_STRING
-		do
-			create Result.make_json ("name")
-		end
-
-	K_version: JSON_STRING
-		do
-			create Result.make_json ("version")
-		end
-
-	K_description: JSON_STRING
-		do
-			create Result.make_json ("description")
-		end
+	K_name: STRING = "name"
+	K_version: STRING = "version"
+	K_description: STRING = "description"
+	K_dependencies: STRING = "dependencies"
 
 end

@@ -32,5 +32,5 @@
 
 	<mount location="${GOBO}/library/library.xace"/>
 	<mount location="${GOBO}/library/kernel.xace"/>
-        <mount location="${EPM_LIBRARIES}/json/library/library.xace"/>
+        <mount location="${EIFFEL_LIBRARY}/json/library/library.xace"/>
 </system>
