@@ -62,7 +62,7 @@ feature -- Basic operations
 	install
 			-- Install a package.
 		local
-			l_dependency: STRING
+			l_dependency, l_dir: STRING
 			l_command: DP_SHELL_COMMAND
 		do
 			check_eiffel_library
@@ -79,8 +79,10 @@ feature -- Basic operations
 						l_dependency := l_cursor.key
 						io.put_string ("Installing dependency " + l_dependency + "...")
 						io.put_new_line
-						create l_command.make ("git clone " + l_cursor.item + " " + File_system.pathname (eiffel_library_directory, l_dependency))
+						l_dir := File_system.pathname (eiffel_library_directory, l_dependency)
+						create l_command.make ("git clone " + l_cursor.item.repository + " " + l_dir)
 						l_command.execute
+						checkout (l_cursor.item.checkout, l_dir)
 						l_cursor.forth
 					end
 				end
@@ -92,7 +94,7 @@ feature -- Basic operations
 	update
 			-- Update a package.
 		local
-			l_dependency, l_cwd: STRING
+			l_dependency, l_cwd, l_dir: STRING
 			l_command: DP_SHELL_COMMAND
 		do
 			check_eiffel_library
@@ -110,10 +112,12 @@ feature -- Basic operations
 						io.put_string ("Updating dependency " + l_dependency + "...")
 						io.put_new_line
 						l_cwd := File_system.cwd
-						File_system.cd (File_system.pathname (eiffel_library_directory, l_dependency))
-						create l_command.make ("git pull " + l_cursor.item)
+						l_dir := File_system.pathname (eiffel_library_directory, l_dependency)
+						File_system.cd (l_dir)
+						create l_command.make ("git pull " + l_cursor.item.repository)
 						l_command.execute
 						File_system.cd (l_cwd)
+						checkout (l_cursor.item.checkout, l_dir)
 						l_cursor.forth
 					end
 				end
@@ -191,6 +195,18 @@ feature {NONE} -- Implementation
 			else
 				io.put_string ("Unable to open file " + l_file.name)
 			end
+		end
+
+	checkout (a_checkout, a_dirname: STRING)
+		local
+			l_cwd: STRING
+			l_command: DP_SHELL_COMMAND
+		do
+			l_cwd := File_system.cwd
+			File_system.cd (a_dirname)
+			create l_command.make ("git checkout " + a_checkout)
+			l_command.execute
+			File_system.cd (l_cwd)
 		end
 
 end

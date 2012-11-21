@@ -30,7 +30,8 @@ feature -- Conversion
 
     from_json (j: attached like value): detachable like object
         local
-            l_dependencies: DS_HASH_TABLE [STRING_32, STRING_32]
+            l_dependencies: DS_HASH_TABLE [EPM_PACKAGE_DEPENDENCY, STRING_32]
+            l_dependency: EPM_PACKAGE_DEPENDENCY
         do
             if attached {STRING_32} json.object (j.item (K_name), Void) as l_name and
             	attached {STRING_32} json.object (j.item (K_version), Void) as l_version then
@@ -44,7 +45,8 @@ feature -- Conversion
 	            		l_json_dependencies as l_cursor
 	            	loop
 	            		if attached {STRING_32} l_cursor.key as l_key and attached {STRING_32} l_cursor.item as l_value then
-	            			l_dependencies.force_last (l_value, l_key)
+	            			create l_dependency.make (l_value)
+	            			l_dependencies.force_last (l_dependency, l_key)
 	            		end
 	            	end
 	            	Result.set_dependencies (l_dependencies)

@@ -34,7 +34,7 @@ feature -- Access
 	description: detachable STRING
 			-- Description
 
-	dependencies: DS_HASH_TABLE [STRING_32, STRING_32]
+	dependencies: DS_HASH_TABLE [EPM_PACKAGE_DEPENDENCY, STRING_32]
 
 feature -- Element change
 
