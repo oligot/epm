@@ -60,4 +60,4 @@ an argument to `git checkout`.  The default is `master`.
 
 ## SEE ALSO
 
-* npm-install(1)
+* epm-install(1)
