@@ -1,0 +1,9 @@
+{
+    "name": "epm",
+    "description": "Eiffel Package Manager based on npm",
+    "version": "0.0.1",
+    "dependencies": {
+        "gobo": "https://github.com/pgcrism/gobo.git#ecf",
+        "json": "https://github.com/eiffelhub/json.git"
+    }
+}
