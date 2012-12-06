@@ -86,6 +86,19 @@ feature -- Basic operations
 						l_cursor.forth
 					end
 				end
+				if attached package.scripts.new_cursor as l_cursor then
+					from
+						l_cursor.start
+					until
+						l_cursor.off
+					loop
+						if l_cursor.key.is_equal ("install") then
+							create l_command.make (l_cursor.item)
+							l_command.execute
+						end
+						l_cursor.forth
+					end
+				end
 				io.put_string ("done")
 				io.put_new_line
             end

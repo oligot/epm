@@ -37,6 +37,14 @@ Version must conform to [semver](http://semver.org/).
 
 Put a description in it. It's a string.
 
+## scripts
+
+The "scripts" member is an object hash of script commands that are run
+at various times in the lifecycle of your package.  The key is the lifecycle
+event, and the value is the command to run at that point.
+
+See `epm-scripts(1)` to find out more about writing package scripts.
+
 ## dependencies
 
 Dependencies are specified with a simple hash of package name to version.
