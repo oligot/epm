@@ -215,7 +215,7 @@ feature {NONE} -- Implementation
 			l_checkout: GIT_CHECKOUT_COMMAND
 		do
 			l_dir := File_system.pathname (eiffel_library_directory, a_package)
-			create l_pull.make_repository (a_dependency.repository)
+			create l_pull.make
 			run_in_directory (l_pull, l_dir)
 			create l_checkout.make (a_dependency.branch)
 			run_in_directory (l_checkout, l_dir)
