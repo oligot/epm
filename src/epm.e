@@ -64,6 +64,8 @@ feature -- Basic operations
 		local
 			l_dependency, l_dir: STRING
 			l_command: DP_SHELL_COMMAND
+			l_clone: GIT_CLONE_COMMAND
+			l_checkout: GIT_CHECKOUT_COMMAND
 		do
 			check_eiffel_library
 			read_package
@@ -80,9 +82,14 @@ feature -- Basic operations
 						io.put_string ("Installing dependency " + l_dependency + "...")
 						io.put_new_line
 						l_dir := File_system.pathname (eiffel_library_directory, l_dependency)
-						create l_command.make ("git clone " + l_cursor.item.repository + " " + l_dir)
-						l_command.execute
-						checkout (l_cursor.item.checkout, l_dir)
+						if File_system.is_directory_readable (l_dir) then
+							pull (l_cursor.key, l_cursor.item)
+						else
+							create l_clone.make_directory (l_cursor.item.repository, l_dir)
+							l_clone.execute
+							create l_checkout.make (l_cursor.item.branch)
+							run_in_directory (l_checkout, l_dir)
+						end
 						l_cursor.forth
 					end
 				end
@@ -106,9 +113,6 @@ feature -- Basic operations
 
 	update
 			-- Update a package.
-		local
-			l_dependency, l_cwd, l_dir: STRING
-			l_command: DP_SHELL_COMMAND
 		do
 			check_eiffel_library
 			read_package
@@ -121,16 +125,9 @@ feature -- Basic operations
 					until
 						l_cursor.off
 					loop
-						l_dependency := l_cursor.key
-						io.put_string ("Updating dependency " + l_dependency + "...")
+						io.put_string ("Updating dependency " + l_cursor.key + "...")
 						io.put_new_line
-						l_cwd := File_system.cwd
-						l_dir := File_system.pathname (eiffel_library_directory, l_dependency)
-						File_system.cd (l_dir)
-						create l_command.make ("git pull " + l_cursor.item.repository)
-						l_command.execute
-						File_system.cd (l_cwd)
-						checkout (l_cursor.item.checkout, l_dir)
+						pull (l_cursor.key, l_cursor.item)
 						l_cursor.forth
 					end
 				end
@@ -210,15 +207,28 @@ feature {NONE} -- Implementation
 			end
 		end
 
-	checkout (a_checkout, a_dirname: STRING)
+	pull (a_package: STRING; a_dependency: EPM_PACKAGE_DEPENDENCY)
+			-- Pull.
+		local
+			l_dir: STRING_8
+			l_pull: GIT_PULL_COMMAND
+			l_checkout: GIT_CHECKOUT_COMMAND
+		do
+			l_dir := File_system.pathname (eiffel_library_directory, a_package)
+			create l_pull.make_repository (a_dependency.repository)
+			run_in_directory (l_pull, l_dir)
+			create l_checkout.make (a_dependency.branch)
+			run_in_directory (l_checkout, l_dir)
+		end
+
+	run_in_directory (a_command: GIT_COMMAND; a_directory: STRING)
+			-- Run `a_command' in `a_directory'.
 		local
 			l_cwd: STRING
-			l_command: DP_SHELL_COMMAND
 		do
 			l_cwd := File_system.cwd
-			File_system.cd (a_dirname)
-			create l_command.make ("git checkout " + a_checkout)
-			l_command.execute
+			File_system.cd (a_directory)
+			a_command.execute
 			File_system.cd (l_cwd)
 		end
 

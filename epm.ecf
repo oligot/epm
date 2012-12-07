@@ -12,6 +12,8 @@
 		<library name="gobo-structure" location="$GOBO\library\structure\gobo-structure-confident.ecf" readonly="true"/>
 		<library name="json" location="$EIFFEL_LIBRARY\json\library\json-safe.ecf" readonly="true"/>
 		<cluster name="epm" location="src\" recursive="true">
+			<option void_safety="initialization" syntax="standard">
+			</option>
 			<file_rule>
 				<exclude>/EIFGENs$</exclude>
 				<exclude>/CVS$</exclude>
