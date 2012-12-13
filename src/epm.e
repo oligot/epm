@@ -30,7 +30,6 @@ feature {NONE} -- Initialization
 			l_parser: AP_PARSER
 			l_commands: DS_HASH_TABLE [PROCEDURE [ANY, TUPLE], STRING]
 		do
-			eiffel_library_directory := ""
 			create l_package_converter.make
 			package := l_package_converter.object
 			json.add_converter (l_package_converter)
@@ -67,7 +66,6 @@ feature -- Basic operations
 			l_clone: GIT_CLONE_COMMAND
 			l_checkout: GIT_CHECKOUT_COMMAND
 		do
-			check_eiffel_library
 			read_package
 			if package_read then
 				io.put_string ("Installing package " + package.name + " version " + package.version + "...")
@@ -114,7 +112,6 @@ feature -- Basic operations
 	update
 			-- Update a package.
 		do
-			check_eiffel_library
 			read_package
 			if package_read then
 				io.put_string ("Updating package " + package.name + " version " + package.version + "...")
@@ -141,45 +138,14 @@ feature {NONE} -- Implementation
 	Package_file_name: STRING = "package.json"
 			-- Package file name
 
-	Eiffel_library_name: STRING = "EIFFEL_LIBRARY"
-			-- Eiffel library environment variable name
-
 	package: EPM_PACKAGE
 			-- Package definition
 
 	package_read: BOOLEAN
 			-- Has the package been read ?
 
-	eiffel_library_directory: STRING
+	Eiffel_library_directory: STRING = "eiffel_library"
 			-- Eiffel library directory
-
-	Eiffel_library_default_value: STRING
-			-- Eiffel library environment variable default value
-		do
-			if Operating_system.Is_unix then
-				Result := "$HOME/eiffel/library"
-			else
-				Result := "C:\eiffel\library"
-			end
-		end
-
-	check_eiffel_library
-			-- Check that the environment variable `Eiffel_library_name' is defined
-			-- and that the directory corresponding to the value of `Eiffel_library_name' exists.
-		local
-			l_value: STRING
-		do
-			if attached Execution_environment.variable_value (Eiffel_library_name) as l then
-				l_value := l
-			else
-				Execution_environment.set_variable_value (Eiffel_library_name, Eiffel_library_default_value)
-				l_value := Eiffel_library_default_value
-			end
-			eiffel_library_directory := Execution_environment.interpreted_string (l_value)
-			if not File_system.directory_exists (eiffel_library_directory) then
-				File_system.recursive_create_directory (eiffel_library_directory)
-			end
-		end
 
 	read_package
 			-- Read the package definition.

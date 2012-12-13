@@ -20,3 +20,7 @@ benefits of using epm if you just want to write an Eiffel program (a).
 * `epm install` (in package directory, no arguments):
 
   Install the dependencies in the local $EIFFEL_LIBRARY folder.
+
+## SEE ALSO
+
+* epm-folders(1)

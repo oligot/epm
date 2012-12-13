@@ -12,3 +12,4 @@ This command updates a package dependencies.
 ## SEE ALSO
 
 * epm-install(1)
+* epm-folders(1)
