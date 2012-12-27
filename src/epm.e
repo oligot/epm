@@ -60,6 +60,32 @@ feature -- Basic operations
 
 	install
 			-- Install a package.
+		do
+			sync ("Installing", True)
+		end
+
+	update
+			-- Update a package.
+		do
+			sync ("Updating", False)
+		end
+
+feature {NONE} -- Implementation
+
+	Package_file_name: STRING = "package.json"
+			-- Package file name
+
+	package: EPM_PACKAGE
+			-- Package definition
+
+	package_read: BOOLEAN
+			-- Has the package been read ?
+
+	Eiffel_library_directory: STRING = "eiffel_library"
+			-- Eiffel library directory
+
+	sync (a_sync_message: STRING; a_exec_scripts: BOOLEAN)
+			-- Sync (install or update) a package.
 		local
 			l_dependency, l_dir: STRING
 			l_command: DP_SHELL_COMMAND
@@ -68,7 +94,7 @@ feature -- Basic operations
 		do
 			read_package
 			if package_read then
-				io.put_string ("Installing package " + package.name + " version " + package.version + "...")
+				io.put_string (a_sync_message + " package " + package.name + " version " + package.version + "...")
 				io.put_new_line
 				if attached package.dependencies.new_cursor as l_cursor then
 					from
@@ -77,7 +103,7 @@ feature -- Basic operations
 						l_cursor.off
 					loop
 						l_dependency := l_cursor.key
-						io.put_string ("Installing dependency " + l_dependency + "...")
+						io.put_string (a_sync_message + " dependency " + l_dependency + "...")
 						io.put_new_line
 						l_dir := File_system.pathname (eiffel_library_directory, l_dependency)
 						if File_system.is_directory_readable (l_dir) then
@@ -91,7 +117,7 @@ feature -- Basic operations
 						l_cursor.forth
 					end
 				end
-				if attached package.scripts.new_cursor as l_cursor then
+				if a_exec_scripts and attached package.scripts.new_cursor as l_cursor then
 					from
 						l_cursor.start
 					until
@@ -108,44 +134,6 @@ feature -- Basic operations
 				io.put_new_line
             end
 		end
-
-	update
-			-- Update a package.
-		do
-			read_package
-			if package_read then
-				io.put_string ("Updating package " + package.name + " version " + package.version + "...")
-				io.put_new_line
-				if attached package.dependencies.new_cursor as l_cursor then
-					from
-						l_cursor.start
-					until
-						l_cursor.off
-					loop
-						io.put_string ("Updating dependency " + l_cursor.key + "...")
-						io.put_new_line
-						pull (l_cursor.key, l_cursor.item)
-						l_cursor.forth
-					end
-				end
-				io.put_string ("done")
-				io.put_new_line
-            end
-		end
-
-feature {NONE} -- Implementation
-
-	Package_file_name: STRING = "package.json"
-			-- Package file name
-
-	package: EPM_PACKAGE
-			-- Package definition
-
-	package_read: BOOLEAN
-			-- Has the package been read ?
-
-	Eiffel_library_directory: STRING = "eiffel_library"
-			-- Eiffel library directory
 
 	read_package
 			-- Read the package definition.
