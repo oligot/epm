@@ -11,6 +11,24 @@ inherit
 	KL_SHARED_FILE_SYSTEM
 	SHARED_EJSON
 
+create
+	make,
+	make_with_error_handler
+
+feature {NONE} -- Initialization
+
+	make
+		do
+			create error_handler.make_standard
+		end
+
+	make_with_error_handler (an_error_handler: like error_handler)
+		do
+			error_handler := an_error_handler
+		ensure
+			error_handler_set: error_handler = an_error_handler
+		end
+
 feature -- Access
 
 	package: detachable EPM_PACKAGE
@@ -36,10 +54,10 @@ feature -- Basic operations
 						package := l_package
 					end
 				else
-					io.put_string ("Unable to parse " + l_file.last_string)
+					error_handler.report_info_message ("Unable to parse " + l_file.last_string)
                 end
 			else
-				io.put_string ("Unable to open file " + l_file.name)
+				error_handler.report_info_message ("Unable to open file " + l_file.name)
 			end
 		end
 
@@ -47,5 +65,8 @@ feature {NONE} -- Implementation
 
 	Package_file_name: STRING = "package.json"
 			-- Package file name
+
+	error_handler: UT_ERROR_HANDLER
+			-- Error handler
 
 end

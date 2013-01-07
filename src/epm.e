@@ -28,8 +28,9 @@ feature {NONE} -- Initialization
 		local
 			l_package_converter: JSON_EPM_PACKAGE_CONVERTER
 			l_parser: AP_PARSER
-			l_commands: DS_HASH_TABLE [PROCEDURE [ANY, TUPLE], STRING]
+			l_commands: DS_HASH_TABLE [PROCEDURE [ANY, TUPLE [DS_LIST [detachable STRING]]], STRING]
 		do
+			create error_handler.make_standard
 			create l_package_converter.make
 			package := l_package_converter.object
 			json.add_converter (l_package_converter)
@@ -38,18 +39,18 @@ feature {NONE} -- Initialization
 			l_parser.set_application_description ("Eiffel Package Manager")
 			l_parser.set_parameters_description ("<command> where <command> is one of: install, update")
 			l_parser.parse_arguments
-			if attached l_parser.parameters as l_parameter and then attached l_parser.help_option as l_help_option then
-				if l_parameter.count < 1 then
+			if attached l_parser.parameters as l_parameters and then attached l_parser.help_option as l_help_option then
+				if l_parameters.count < 1 then
 					l_help_option.display_help (l_parser)
 				else
 					create l_commands.make (3)
 					l_commands.force_last (agent install, "install")
 					l_commands.force_last (agent update, "update")
-					if attached l_parameter.first as l_first then
+					if attached l_parameters.first as l_first then
 						if not l_commands.has (l_first) then
 							l_help_option.display_help (l_parser)
 						else
-							l_commands.item (l_first).call ([])
+							l_commands.item (l_first).call ([l_parameters])
 						end
 					end
 				end
@@ -58,19 +59,22 @@ feature {NONE} -- Initialization
 
 feature -- Basic operations
 
-	install
+	install (some_parameters: DS_LIST [detachable STRING])
 			-- Install a package.
 		do
-			sync ("Installing", True)
+			sync ("Installing", some_parameters, True)
 		end
 
-	update
+	update (some_parameters: DS_LIST [detachable STRING])
 			-- Update a package.
 		do
-			sync ("Updating", False)
+			sync ("Updating", some_parameters, False)
 		end
 
 feature {NONE} -- Implementation
+
+	error_handler: EPM_ERROR_HANDLER
+			-- Error handler
 
 	package: EPM_PACKAGE
 			-- Package definition
@@ -81,35 +85,53 @@ feature {NONE} -- Implementation
 	Eiffel_library_directory: STRING = "eiffel_library"
 			-- Eiffel library directory
 
-	sync (a_sync_message: STRING; a_exec_scripts: BOOLEAN)
+	sync (a_sync_message: STRING; some_parameters: DS_LIST [detachable STRING]; a_exec_scripts: BOOLEAN)
 			-- Sync (install or update) a package.
 		local
-			l_dependency, l_dir: STRING
+			l_dependency, l_dir, l_message: STRING
+			l_dependencies: DS_LINKED_LIST [detachable STRING]
 			l_command: DP_SHELL_COMMAND
 			l_clone: GIT_CLONE_COMMAND
 			l_checkout: GIT_CHECKOUT_COMMAND
 		do
 			read_package
 			if package_read then
-				io.put_string (a_sync_message + " package " + package.name + " version " + package.version + "...")
-				io.put_new_line
+				create l_message.make_empty
+				l_message.append_string (a_sync_message)
+				l_message.append_string (" package ")
+				l_message.append_string (package.name)
+				l_message.append_string (" version ")
+				l_message.append_string (package.version)
+				l_message.append_string ("...")
+				error_handler.report_info_message (l_message)
 				if attached package.dependencies.new_cursor as l_cursor then
 					from
 						l_cursor.start
+						create l_dependencies.make_equal
+						l_dependencies.extend_last (some_parameters)
+						if not l_dependencies.is_empty then
+							l_dependencies.remove_first
+						end
 					until
 						l_cursor.off
 					loop
 						l_dependency := l_cursor.key
-						io.put_string (a_sync_message + " dependency " + l_dependency + "...")
-						io.put_new_line
-						l_dir := File_system.pathname (eiffel_library_directory, l_dependency)
-						if File_system.is_directory_readable (l_dir) then
-							pull (l_cursor.key, l_cursor.item)
-						else
-							create l_clone.make_directory (l_cursor.item.repository, l_dir)
-							l_clone.execute
-							create l_checkout.make (l_cursor.item.branch)
-							run_in_directory (l_checkout, l_dir)
+						if l_dependencies.is_empty or else l_dependencies.has (l_dependency) then
+							create l_message.make_empty
+							l_message.append_string (a_sync_message)
+							l_message.append_string (" dependency ")
+							l_message.append_string (l_dependency)
+							l_message.append_string ("...")
+							error_handler.report_info_message (l_message)
+							l_dir := File_system.pathname (eiffel_library_directory, l_dependency)
+							if File_system.is_directory_readable (l_dir) then
+								pull (l_cursor.key, l_cursor.item)
+							else
+								create l_clone.make_directory (l_cursor.item.repository, l_dir)
+								l_clone.execute
+								create l_checkout.make (l_cursor.item.branch)
+								run_in_directory (l_checkout, l_dir)
+							end
 						end
 						l_cursor.forth
 					end
@@ -127,8 +149,7 @@ feature {NONE} -- Implementation
 						l_cursor.forth
 					end
 				end
-				io.put_string ("done")
-				io.put_new_line
+				error_handler.report_info_message ("done")
             end
 		end
 
@@ -137,7 +158,7 @@ feature {NONE} -- Implementation
 		local
 			l_reader: EPM_PACKAGE_FILE_READER
 		do
-			create l_reader
+			create l_reader.make_with_error_handler (error_handler)
 			l_reader.read
 			if attached l_reader.package as l_package then
 				package := l_package
