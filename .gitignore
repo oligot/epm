@@ -1,3 +1,4 @@
 *.swp
 EIFGENs
 eiffel_library
+*.rc

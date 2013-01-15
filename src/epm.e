@@ -85,6 +85,16 @@ feature {NONE} -- Implementation
 	Eiffel_library_directory: STRING = "eiffel_library"
 			-- Eiffel library directory
 
+	script_file: STRING
+			-- Install script file name
+		do
+			if Operating_system.is_unix then
+				Result := "install.sh"
+			else
+				Result := "install.bat"
+			end
+		end
+
 	sync (a_sync_message: STRING; some_parameters: DS_LIST [detachable STRING]; a_exec_scripts: BOOLEAN)
 			-- Sync (install or update) a package.
 		local
@@ -127,6 +137,7 @@ feature {NONE} -- Implementation
 							if File_system.is_directory_readable (l_dir) then
 								pull (l_cursor.key, l_cursor.item)
 							else
+								File_system.create_directory (eiffel_library_directory)
 								create l_clone.make_directory (l_cursor.item.repository, l_dir)
 								l_clone.execute
 								create l_checkout.make (l_cursor.item.branch)
@@ -136,18 +147,9 @@ feature {NONE} -- Implementation
 						l_cursor.forth
 					end
 				end
-				if a_exec_scripts and attached package.scripts.new_cursor as l_cursor then
-					from
-						l_cursor.start
-					until
-						l_cursor.off
-					loop
-						if l_cursor.key.is_equal ("install") then
-							create l_command.make (l_cursor.item)
-							l_command.execute
-						end
-						l_cursor.forth
-					end
+				if a_exec_scripts and File_system.is_file_readable (script_file) then
+					create l_command.make (script_file)
+					l_command.execute
 				end
 				error_handler.report_info_message ("done")
             end

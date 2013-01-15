@@ -1,33 +1,13 @@
-epm-scripts(1) -- How epm handles the "scripts" field
-=====================================================
+epm-scripts(1) -- How epm handles scripts
+=========================================
 
 ## DESCRIPTION
 
-epm supports the "scripts" member of the package.json script, for the
-following scripts:
-
-* install:
-  Run AFTER the package is installed.
-
-## EXAMPLES
-
-For example, if your package.json contains this:
-
-    { "scripts" :
-      { "install" : "./install.sh"
-      }
-    }
-
-then the `install.sh` will be called for the install stage of the lifecycle.
-
-If you want to run a make command, you can do so.  This works just fine:
-
-    { "scripts" :
-      { "install" : "make && make install"
-      }
-    }
+epm can run scripts AFTER the package is installed.
+epm will search at the root of your package and executes a
+* `install.sh` file on Unix
+* `install.bat` file on Windows
 
 ## SEE ALSO
 
-* epm-json(1)
 * epm-install(1)
