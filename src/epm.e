@@ -86,12 +86,24 @@ feature {NONE} -- Implementation
 			-- Eiffel library directory
 
 	script_file: STRING
-			-- Install script file name
+			-- Install script file name.
+		do
+			create Result.make_empty
+			Result.append_string ("install.")
+			if Operating_system.is_unix then
+				Result.append_string ("sh")
+			else
+				Result.append_string ("bat")
+			end
+		end
+
+	command (a_script_name: STRING): STRING
+			-- Command line for `a_script_name'.
 		do
 			if Operating_system.is_unix then
-				Result := "install.sh"
+				Result := "./" + a_script_name
 			else
-				Result := "install.bat"
+				Result := a_script_name
 			end
 		end
 
@@ -148,7 +160,7 @@ feature {NONE} -- Implementation
 					end
 				end
 				if a_exec_scripts and File_system.is_file_readable (script_file) then
-					create l_command.make (script_file)
+					create l_command.make (command (script_file))
 					l_command.execute
 				end
 				error_handler.report_info_message ("done")

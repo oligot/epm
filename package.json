@@ -5,8 +5,5 @@
   "dependencies": {
     "gobo": "https://github.com/pgcrism/gobo.git#ecf",
     "json": "https://github.com/eiffelhub/json.git"
-  },
-  "scripts": {
-    "install": "./scripts/install.sh"
   }
 }
