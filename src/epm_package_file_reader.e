@@ -54,10 +54,10 @@ feature -- Basic operations
 						package := l_package
 					end
 				else
-					error_handler.report_info_message ("Unable to parse " + l_file.last_string)
+					error_handler.report_error_message ("Unable to parse " + l_file.last_string)
                 end
 			else
-				error_handler.report_info_message ("Unable to open file " + l_file.name)
+				error_handler.report_error_message ("Unable to open file " + l_file.name)
 			end
 		end
 
