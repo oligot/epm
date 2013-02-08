@@ -18,7 +18,6 @@ feature {NONE} -- Initialization
 			name := a_name
 			version := a_version
 			create dependencies.make_default
-			create scripts.make_default
 		ensure
 			name_set: name = a_name
 			version_set: version = a_version
@@ -37,8 +36,6 @@ feature -- Access
 
 	dependencies: DS_HASH_TABLE [EPM_PACKAGE_DEPENDENCY, STRING_32]
 
-	scripts: DS_HASH_TABLE [STRING_32, STRING_32]
-
 feature -- Element change
 
 	set_description (a_description: like description)
@@ -47,22 +44,6 @@ feature -- Element change
 			description := a_description
 		ensure
 			description_set: description = a_description
-		end
-
-	set_dependencies (a_dependencies: like dependencies)
-			-- Set `dependencies' to `a_dependencies'.
-		do
-			dependencies := a_dependencies
-		ensure
-			dependencies_set: dependencies = a_dependencies
-		end
-
-	set_scripts (a_scripts: like scripts)
-			-- Set `scripts' to `a_scripts'.
-		do
-			scripts := a_scripts
-		ensure
-			scripts_set: scripts = a_scripts
 		end
 
 end

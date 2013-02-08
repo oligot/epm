@@ -1,9 +1,14 @@
 {
   "name": "epm",
   "description": "Eiffel Package Manager based on npm",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "dependencies": {
-    "gobo": "https://github.com/pgcrism/gobo.git#ecf",
-    "json": "https://github.com/eiffelhub/json.git"
-  }
+    "gobo": "https://github.com/oligot/gobo.git#ecf",
+    "json": "https://github.com/oligot/json.git#gec"
+  },
+  "engines": {
+    "ise": ">=7.0",
+    "ge": ">=3.10-alpha"
+  },
+  "os" : [ "windows", "unix" ]
 }

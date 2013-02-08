@@ -29,40 +29,22 @@ feature -- Access
 feature -- Conversion
 
     from_json (j: attached like value): detachable like object
-        local
-            l_dependencies: DS_HASH_TABLE [EPM_PACKAGE_DEPENDENCY, STRING_32]
-            l_scripts: DS_HASH_TABLE [STRING_32, STRING_32]
-            l_dependency: EPM_PACKAGE_DEPENDENCY
         do
             if attached {STRING_32} json.object (j.item (K_name), Void) as l_name and
             	attached {STRING_32} json.object (j.item (K_version), Void) as l_version then
             	create Result.make (l_name, l_version)
-	            if attached {STRING_32} json.object (j.item (K_description), Void) as l_description then
-	            	Result.set_description (l_description)
-	            end
-	            if attached {HASH_TABLE [detachable ANY, STRING_GENERAL]} json.object (j.item (K_dependencies), Void) as l_json_dependencies then
-	            	create l_dependencies.make_equal (l_json_dependencies.count)
-	            	across
-	            		l_json_dependencies as l_cursor
-	            	loop
-	            		if attached {STRING_32} l_cursor.key as l_key and attached {STRING_32} l_cursor.item as l_value then
-	            			create l_dependency.make (l_value)
-	            			l_dependencies.force_last (l_dependency, l_key)
-	            		end
-	            	end
-	            	Result.set_dependencies (l_dependencies)
-	            end
-	            if attached {HASH_TABLE [detachable ANY, STRING_GENERAL]} json.object (j.item (K_scripts), Void) as l_json_scripts then
-	            	create l_scripts.make_equal (l_json_scripts.count)
-	            	across
-	            		l_json_scripts as l_cursor
-	            	loop
-	            		if attached {STRING_32} l_cursor.key as l_key and attached {STRING_32} l_cursor.item as l_value then
-	            			l_scripts.force_last (l_value, l_key)
-	            		end
-	            	end
-	            	Result.set_scripts (l_scripts)
-	            end
+                if attached {STRING_32} json.object (j.item (K_description), Void) as l_description then
+                    Result.set_description (l_description)
+                end
+                if attached {JSON_OBJECT} j.item (K_dependencies) as l_json_dependencies then
+                	across
+                		l_json_dependencies.current_keys as l_keys
+                	loop
+                		if attached {JSON_STRING} l_json_dependencies.item (l_keys.item) as l_value then
+                            Result.dependencies.force_last (create {EPM_PACKAGE_DEPENDENCY}.make (l_value.item), l_keys.item.item)
+                        end
+                	end
+                end
             end
         end
 
@@ -77,6 +59,5 @@ feature {NONE} -- Implementation
 	K_version: STRING = "version"
 	K_description: STRING = "description"
 	K_dependencies: STRING = "dependencies"
-	K_scripts: STRING = "scripts"
 
 end

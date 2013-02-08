@@ -58,6 +58,24 @@ Git urls can be of the form:
 The `commit-ish` can be any tag, sha, or branch which can be supplied as
 an argument to `git checkout`.  The default is `master`.
 
+## engines
+
+You can specify the version of Eiffel that your stuff works on:
+
+    { "engines" : { "ise" : ">=7.0" } }
+
+And, like with dependencies, if you don't specify the version (or if you
+specify "\*" as the version), then any version of Eiffel will do.
+
+Note that this field is advisory only.
+
+## os
+
+You can specify which operating systems your
+module will run on:
+
+    "os" : [ "windows", "unix" ]
+
 ## SEE ALSO
 
 * epm-install(1)

@@ -11,7 +11,8 @@ inherit
 	UT_ERROR_HANDLER
 		redefine
 			report_error_message,
-			report_info_message
+			report_info_message,
+			message
 		end
 
 create
@@ -20,7 +21,7 @@ create
 
 feature -- Basic operations
 
-	report_error_message (an_error: detachable STRING)
+	report_error_message (an_error: STRING)
 			-- Report `an_error'.
 		local
 			l_message: STRING
@@ -32,7 +33,7 @@ feature -- Basic operations
 			Precursor (l_message)
 		end
 
-	report_info_message (an_info: detachable STRING)
+	report_info_message (an_info: STRING)
 			-- Report `an_info'.
 		local
 			l_message: STRING
@@ -45,6 +46,18 @@ feature -- Basic operations
 		end
 
 feature {NONE} -- Implementation
+
+	message (an_error: UT_ERROR): STRING
+			-- Message built out of `an_error'
+			-- Redefinition is needed by ISE compiler
+			-- as GOBO is not fully Void-safe yet
+		do
+			if attached Precursor (an_error) as l_result then
+				Result := l_result
+			else
+				create Result.make_empty
+			end
+		end
 
 	Epm: STRING = "epm"
 
