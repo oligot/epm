@@ -7,3 +7,4 @@ epm.h
 epm.sh
 epm1.c
 epm1.o
+node_modules/
