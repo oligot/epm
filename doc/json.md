@@ -1,14 +1,14 @@
-epm-json(1) -- Specifics of epm's package.json handling
+epm-json(1) -- Specifics of epm's system.json handling
 =======================================================
 
 ## DESCRIPTION
 
-This document is all you need to know about what's required in your package.json
+This document is all you need to know about what's required in your system.json
 file. It must be actual JSON, not just a JavaScript object literal.
 
 ## name
 
-The *most* important things in your package.json are the name and version fields.
+The *most* important things in your system.json are the name and version fields.
 Those are actually required, and your package won't install without
 them.  The name and version together form an identifier that is assumed
 to be completely unique.  Changes to the package should come along with
@@ -17,7 +17,7 @@ changes to the version.
 The name is what your thing is called.  Some tips:
 
 * Don't put "eiffel" in the name.  It's assumed that it's eiffel, since you're
-  writing a package.json file.
+  writing a system.json file.
 * The name ends up being part of a URL, an argument on the command line, and a
   folder name. Any name with non-url-safe characters will be rejected.
   Also, it can't start with a dot or an underscore.
@@ -25,7 +25,7 @@ The name is what your thing is called.  Some tips:
 
 ## version
 
-The *most* important things in your package.json are the name and version fields.
+The *most* important things in your system.json are the name and version fields.
 Those are actually required, and your package won't install without
 them.  The name and version together form an identifier that is assumed
 to be completely unique.  Changes to the package should come along with

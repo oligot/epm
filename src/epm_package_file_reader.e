@@ -63,7 +63,7 @@ feature -- Basic operations
 
 feature {NONE} -- Implementation
 
-	Package_file_name: STRING = "package.json"
+	Package_file_name: STRING = "system.json"
 			-- Package file name
 
 	error_handler: UT_ERROR_HANDLER

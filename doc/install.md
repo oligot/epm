@@ -12,7 +12,7 @@ This command installs a package dependencies.
 
 `Package dependencies` are:
 
-* a) a folder containing a program described by a package.json file
+* a) a folder containing a program described by a system.json file
 * b) some `<name>`
 
 Even if you never publish your package, you can still get a lot of
