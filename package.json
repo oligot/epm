@@ -3,6 +3,7 @@
   "description": "Eiffel Package Manager based on npm",
   "version": "0.1.0",
   "devDependencies": {
-    "grunt-contrib-clean": "0.3.x"
+    "grunt": "0.4.x",
+    "grunt-contrib-clean": "0.4.x"
   }
 }

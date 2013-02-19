@@ -1,4 +1,4 @@
 #!/bin/sh
 
-cd $GOBO/library/kernel
+cd eiffel_library/gobo/library/kernel
 geant install

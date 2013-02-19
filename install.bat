@@ -1,7 +1,7 @@
 setlocal
 set cwd=%cd%
 
-cd %GOBO%\library\kernel
+cd eiffel_library\gobo\library\kernel
 geant install
 
 cd %cwd%
