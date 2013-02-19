@@ -1,16 +1,19 @@
+var path = require('path');
 var spawn = require('child_process').spawn;
+var _ = require('underscore');
 
 module.exports = function(grunt) {
 
   grunt.registerMultiTask('compile', 'Eiffel compilation', function() {
     var done = this.async();
+    var workbench = grunt.option('workbench') || false;
     var options = this.options({
-      workbench: false,
-      compiler: 'ise'
+      ecf: path.basename(process.cwd()) + '.ecf',
+      env: {}
     });
-    if (options.compiler === 'ise') {
+    if (this.target === 'ise') {
       var name = 'ec';
-      if (options.workbench) {
+      if (workbench) {
         var args = [];
       } else {
         var args = ['-finalize'];
@@ -18,7 +21,7 @@ module.exports = function(grunt) {
       args.push('-config', options.ecf, '-c_compile');
     } else {
       var name = 'gec';
-      if (options.workbench) {
+      if (workbench) {
         var args = [];
       } else {
         var args = ['--finalize'];
@@ -26,10 +29,11 @@ module.exports = function(grunt) {
       args.push('--catcall=no', options.ecf);
     }
 
-    process.env.EIFFEL_LIBRARY = process.cwd() + '/eiffel_library';
-    process.env.GOBO = process.env.EIFFEL_LIBRARY + '/gobo';
     grunt.log.writeln('Launching ' + name + ' ' + args.join(' ') + '...');
-    var ec = spawn(name, args);
+    var env = _.extend(options.env, process.env);
+    var ec = spawn(name, args, {
+      env: env
+    });
 
     ec.stdout.on('data', function (data) {
       process.stdout.write(data);
@@ -56,20 +60,13 @@ module.exports = function(grunt) {
     },
     compile: {
       options: {
-        ecf: 'epm.ecf'
-      },
-      ise: {
-        options: {
-          compiler: 'ise',
-          workbench: true
+        env: {
+          EIFFEL_LIBRARY: process.cwd() + '/eiffel_library',
+          GOBO: process.env.EIFFEL_LIBRARY + '/gobo'
         }
       },
-      ge: {
-        options: {
-          compiler: 'ge',
-          workbench: false
-        }
-      }
+      ise: {},
+      ge: {}
     }
   });
 
