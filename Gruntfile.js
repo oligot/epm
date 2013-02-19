@@ -1,3 +1,5 @@
+var path = require('path');
+
 module.exports = function(grunt) {
 
   grunt.initConfig({
@@ -8,8 +10,8 @@ module.exports = function(grunt) {
     eiffel: {
       options: {
         env: {
-          EIFFEL_LIBRARY: process.cwd() + '/eiffel_library',
-          GOBO: process.env.EIFFEL_LIBRARY + '/gobo'
+          EIFFEL_LIBRARY: path.join(process.cwd(), 'eiffel_library'),
+          GOBO: path.join(process.cwd(), 'eiffel_library', 'gobo')
         }
       },
       ise: {},
