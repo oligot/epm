@@ -60,12 +60,14 @@ module.exports = function(grunt) {
       },
       ise: {
         options: {
+          compiler: 'ise',
           workbench: true
         }
       },
       ge: {
         options: {
-          compiler: 'ge'
+          compiler: 'ge',
+          workbench: false
         }
       }
     }
