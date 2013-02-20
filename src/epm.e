@@ -13,6 +13,7 @@ class EPM
 
 inherit
 	KL_SHARED_ARGUMENTS
+	KL_SHARED_EXECUTION_ENVIRONMENT
 	KL_SHARED_FILE_SYSTEM
 	KL_SHARED_OPERATING_SYSTEM
 	SHARED_EJSON
@@ -30,6 +31,7 @@ feature {NONE} -- Initialization
 			l_commands: DS_HASH_TABLE [PROCEDURE [ANY, TUPLE [DS_LIST [detachable STRING]]], STRING]
 		do
 			create error_handler.make_standard
+			create package_reader.make_with_error_handler (error_handler)
 			create l_package_converter.make
 			package := l_package_converter.object
 			json.add_converter (l_package_converter)
@@ -75,6 +77,9 @@ feature {NONE} -- Implementation
 	error_handler: EPM_ERROR_HANDLER
 			-- Error handler
 
+	package_reader: EPM_PACKAGE_FILE_READER
+			-- Package reader
+
 	package: EPM_PACKAGE
 			-- Package definition
 
@@ -88,7 +93,7 @@ feature {NONE} -- Implementation
 			-- Install script file name.
 		do
 			create Result.make_empty
-			Result.append_string ("install.")
+			Result.append_string ("epm.")
 			if Operating_system.is_unix then
 				Result.append_string ("sh")
 			else
@@ -109,7 +114,7 @@ feature {NONE} -- Implementation
 	sync (a_sync_message: STRING; some_parameters: DS_LIST [detachable STRING]; a_exec_scripts: BOOLEAN)
 			-- Sync (install or update) a package.
 		local
-			l_dependency, l_dir, l_message: STRING
+			l_dependency, l_dir, l_message, l_script: STRING
 			l_dependencies: DS_LINKED_LIST [detachable STRING]
 			l_command: DP_SHELL_COMMAND
 			l_clone: GIT_CLONE_COMMAND
@@ -154,6 +159,18 @@ feature {NONE} -- Implementation
 								create l_checkout.make (l_cursor.item.branch)
 								run_in_directory (l_checkout, l_dir)
 							end
+							if File_system.is_file_readable (File_system.pathname (l_dir, {EPM_PACKAGE_FILE_READER}.Package_file_name)) then
+								package_reader.set_directory (l_dir)
+								package_reader.read
+								if attached package_reader.package as l_package and then attached l_package.environment_variable as l_env then
+									Execution_environment.set_variable_value (l_env, File_system.pathname (File_system.cwd, l_dir))
+								end
+							end
+							l_script := File_system.pathname (l_dir, script_file)
+							if a_exec_scripts and File_system.is_file_readable (l_script) then
+								create l_command.make (command (l_script))
+								l_command.execute
+							end
 						end
 						l_cursor.forth
 					end
@@ -168,12 +185,9 @@ feature {NONE} -- Implementation
 
 	read_package
 			-- Read the package definition.
-		local
-			l_reader: EPM_PACKAGE_FILE_READER
 		do
-			create l_reader.make_with_error_handler (error_handler)
-			l_reader.read
-			if attached l_reader.package as l_package then
+			package_reader.read
+			if attached package_reader.package as l_package then
 				package := l_package
 				package_read := True
 			end

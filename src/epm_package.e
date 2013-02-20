@@ -36,6 +36,9 @@ feature -- Access
 
 	dependencies: DS_HASH_TABLE [EPM_PACKAGE_DEPENDENCY, STRING_32]
 
+	environment_variable: detachable STRING
+			-- Environment variable
+
 feature -- Element change
 
 	set_description (a_description: like description)
@@ -44,6 +47,14 @@ feature -- Element change
 			description := a_description
 		ensure
 			description_set: description = a_description
+		end
+
+	set_environment_variable (an_environment_variable: like environment_variable)
+			-- Set `environment_variable' to `an_environment_variable'.
+		do
+			environment_variable := an_environment_variable
+		ensure
+			environment_variable_set: environment_variable = an_environment_variable
 		end
 
 end

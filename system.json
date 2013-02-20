@@ -3,12 +3,12 @@
   "description": "Eiffel Package Manager based on npm",
   "version": "0.1.0",
   "dependencies": {
-    "gobo": "https://github.com/oligot/gobo.git#ecf",
+    "gobo": "https://github.com/oligot/gobo.git#epm",
     "json": "https://github.com/oligot/json.git#gec"
   },
   "engines": {
-    "ise": ">=7.0",
-    "ge": ">=3.10-alpha"
+    "ise": ">=7.0.x",
+    "ge": ">=3.10.x"
   },
   "os" : [ "windows", "unix" ]
 }

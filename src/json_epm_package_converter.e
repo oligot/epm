@@ -45,6 +45,9 @@ feature -- Conversion
                         end
                 	end
                 end
+                if attached {STRING_32} json.object (j.item (K_env), Void) as l_env then
+                    Result.set_environment_variable (l_env)
+                end
             end
         end
 
@@ -59,5 +62,6 @@ feature {NONE} -- Implementation
 	K_version: STRING = "version"
 	K_description: STRING = "description"
 	K_dependencies: STRING = "dependencies"
+	K_env: STRING = "env"
 
 end
