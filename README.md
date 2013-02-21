@@ -73,8 +73,8 @@ They are fetched and checked out in a local subdirectory called `./eiffel\_libra
 
 
 ```
-/eiffel\_library/gobo
-/eiffel\_library/json
+/eiffel_library/gobo
+/eiffel_library/json
 ```
 
 You can also install packages one at a time with `epm install json`
