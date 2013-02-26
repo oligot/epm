@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-10-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-10-0 http://www.eiffel.com/developers/xml/configuration-1-10-0.xsd" name="epm" uuid="5E8F515D-793B-4523-B1CD-8EE3B21BBB90">
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-5-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-5-0 http://www.eiffel.com/developers/xml/configuration-1-5-0.xsd" name="epm" uuid="CE7F00B3-BBF7-4810-BA85-12580E2C3609" library_target="epm">
 	<target name="epm">
-		<root class="EPM" feature="make"/>
+		<root all_classes="true"/>
 		<option warning="true" full_class_checking="true" is_attached_by_default="true" void_safety="initialization" syntax="standard">
 			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
 		</option>
-		<setting name="console_application" value="true"/>
 		<library name="base" location="$ISE_LIBRARY\library\base\base-safe.ecf" readonly="true">
 			<condition>
 				<custom name="GOBO_EIFFEL" excluded_value="ge"/>
@@ -21,15 +20,6 @@
 		<library name="gobo-pattern" location="$GOBO\library\pattern\gobo-pattern-safe.ecf" readonly="true"/>
 		<library name="gobo-structure" location="$GOBO\library\structure\gobo-structure-confident.ecf" readonly="true"/>
 		<library name="json" location="$EIFFEL_LIBRARY\json\library\json-safe.ecf" readonly="true"/>
-		<library name="epm-lib" location="lib\epm.ecf" readonly="true"/>
-		<cluster name="epm" location=".">
-			<option void_safety="initialization" syntax="standard">
-			</option>
-			<file_rule>
-				<exclude>/EIFGENs$</exclude>
-				<exclude>/CVS$</exclude>
-				<exclude>/.svn$</exclude>
-			</file_rule>
-		</cluster>
+		<cluster name="epm" location="." recursive="true"/>
 	</target>
 </system>
