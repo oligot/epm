@@ -1,8 +1,6 @@
 note
 	description: "Package depedency."
 	author: "Olivier Ligot"
-	date: "$Date$"
-	revision: "$Revision$"
 
 class
 	EPM_PACKAGE_DEPENDENCY

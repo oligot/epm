@@ -1,11 +1,12 @@
 note
 	description: "Git command."
 	author: "Olivier Ligot"
-	date: "$Date$"
-	revision: "$Revision$"
 
 deferred class
 	GIT_COMMAND
+
+inherit
+	KL_SHARED_FILE_SYSTEM
 
 feature {NONE} -- Initialization
 
@@ -27,15 +28,34 @@ feature -- Access
 	arguments: DS_LIST [STRING]
 			-- Subcommand arguments
 
+	directory: detachable STRING
+			-- Directory where the command will be executed
+
+feature -- Element change
+
+	set_directory (a_directory: STRING)
+		require
+			a_directory_not_void: a_directory /= Void
+		do
+			directory := a_directory
+		ensure
+			directory_set: directory = a_directory
+		end
+
 feature -- Basic operations
 
 	execute
 			-- Execute current command.
 		local
+			l_cwd: detachable STRING
 			l_splitter: ST_SPLITTER
 			l_command: STRING
 			l_shell_command: DP_SHELL_COMMAND
 		do
+			if attached directory as l_directory then
+				l_cwd := File_system.cwd
+				File_system.cd (l_directory)
+			end
 			create l_splitter.make
 			l_splitter.set_escape_character ('\')
 			create l_command.make (20)
@@ -48,6 +68,9 @@ feature -- Basic operations
 			end
 			create l_shell_command.make (l_command)
 			l_shell_command.execute
+			if l_cwd /= Void then
+				File_system.cd (l_cwd)
+			end
 		end
 
 end

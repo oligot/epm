@@ -1,8 +1,6 @@
 note
 	description: "JSON converter for package."
 	author: "Olivier Ligot"
-	date: "$Date$"
-	revision: "$Revision$"
 
 class
 	JSON_EPM_PACKAGE_CONVERTER

@@ -1,8 +1,6 @@
 note
 	description: "epm error handler."
 	author: "Olivier Ligot"
-	date: "$Date$"
-	revision: "$Revision$"
 
 class
 	EPM_ERROR_HANDLER

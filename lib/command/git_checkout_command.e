@@ -1,8 +1,6 @@
 note
 	description: "Git checkout command."
 	author: "Olivier Ligot"
-	date: "$Date$"
-	revision: "$Revision$"
 
 class
 	GIT_CHECKOUT_COMMAND

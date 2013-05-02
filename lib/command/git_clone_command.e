@@ -1,8 +1,6 @@
 note
 	description: "Git clone command."
 	author: "Olivier Ligot"
-	date: "$Date$"
-	revision: "$Revision$"
 
 class
 	GIT_CLONE_COMMAND
@@ -40,7 +38,7 @@ feature -- Access
 	repository: STRING
 			-- The (possibly remote) repository to clone from
 
-	directory: detachable STRING
+	new_directory: detachable STRING
 			-- The name of a new directory to clone into
 
 	name: STRING = "clone"

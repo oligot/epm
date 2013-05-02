@@ -4,10 +4,8 @@ note
 
 		"Eiffel Package Manager"
 
-	copyright: "Copyright (c) 2012, Olivier Ligot and others"
+	copyright: "Copyright (c) 2013, Olivier Ligot and others"
 	license: "MIT License"
-	date: "$Date$"
-	revision: "$Revision$"
 
 class EPM
 
@@ -151,13 +149,14 @@ feature {NONE} -- Implementation
 							error_handler.report_info_message (l_message)
 							l_dir := File_system.pathname (eiffel_library_directory, l_dependency)
 							if File_system.is_directory_readable (l_dir) then
-								pull (l_cursor.key, l_cursor.item)
+								sync_update (l_cursor.key, l_cursor.item)
 							else
 								File_system.create_directory (eiffel_library_directory)
 								create l_clone.make_directory (l_cursor.item.repository, l_dir)
 								l_clone.execute
 								create l_checkout.make (l_cursor.item.branch)
-								run_in_directory (l_checkout, l_dir)
+								l_checkout.set_directory (l_dir)
+								l_checkout.execute
 							end
 							if File_system.is_file_readable (File_system.pathname (l_dir, {EPM_PACKAGE_FILE_READER}.Package_file_name)) then
 								package_reader.set_directory (l_dir)
@@ -193,29 +192,24 @@ feature {NONE} -- Implementation
 			end
 		end
 
-	pull (a_package: STRING; a_dependency: EPM_PACKAGE_DEPENDENCY)
-			-- Pull.
+	sync_update (a_package: STRING; a_dependency: EPM_PACKAGE_DEPENDENCY)
+			-- Update the local repository of `a_dependency'.
 		local
 			l_dir: STRING_8
-			l_pull: GIT_PULL_COMMAND
+			l_fetch: GIT_FETCH_COMMAND
 			l_checkout: GIT_CHECKOUT_COMMAND
+			l_merge: GIT_MERGE_COMMAND
 		do
 			l_dir := File_system.pathname (eiffel_library_directory, a_package)
-			create l_pull.make
-			run_in_directory (l_pull, l_dir)
+			create l_fetch.make
+			l_fetch.set_directory (l_dir)
+			l_fetch.execute
 			create l_checkout.make (a_dependency.branch)
-			run_in_directory (l_checkout, l_dir)
-		end
-
-	run_in_directory (a_command: GIT_COMMAND; a_directory: STRING)
-			-- Run `a_command' in `a_directory'.
-		local
-			l_cwd: STRING
-		do
-			l_cwd := File_system.cwd
-			File_system.cd (a_directory)
-			a_command.execute
-			File_system.cd (l_cwd)
+			l_checkout.set_directory (l_dir)
+			l_checkout.execute
+			create l_merge.make ("origin/" + a_dependency.branch)
+			l_merge.set_directory (l_dir)
+			l_merge.execute
 		end
 
 end

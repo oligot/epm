@@ -1,8 +1,6 @@
 note
 	description: "Read a package from a file."
 	author: "Olivier Ligot"
-	date: "$Date$"
-	revision: "$Revision$"
 
 class
 	EPM_PACKAGE_FILE_READER
