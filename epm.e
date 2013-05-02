@@ -36,15 +36,14 @@ feature {NONE} -- Initialization
 			Arguments.set_program_name ("epm")
 			create l_parser.make
 			l_parser.set_application_description ("Eiffel Package Manager")
-			l_parser.set_parameters_description ("<command> where <command> is one of: install, update")
+			l_parser.set_parameters_description ("<command> where <command> is one of: sync")
 			l_parser.parse_arguments
 			if attached l_parser.parameters as l_parameters and then attached l_parser.help_option as l_help_option then
 				if l_parameters.count < 1 then
 					l_help_option.display_help (l_parser)
 				else
-					create l_commands.make (3)
-					l_commands.force_last (agent install, "install")
-					l_commands.force_last (agent update, "update")
+					create l_commands.make (1)
+					l_commands.force_last (agent sync, "sync")
 					if attached l_parameters.first as l_first then
 						if not l_commands.has (l_first) then
 							l_help_option.display_help (l_parser)
@@ -58,16 +57,84 @@ feature {NONE} -- Initialization
 
 feature -- Basic operations
 
-	install (some_parameters: DS_LIST [detachable STRING])
-			-- Install a package.
+	sync (some_parameters: DS_LIST [detachable STRING])
+			-- Sync (install or update) a package.
+		local
+			l_dependency, l_dir, l_message, l_script, l_sync_message: STRING
+			l_dependencies: DS_LINKED_LIST [detachable STRING]
+			l_command: DP_SHELL_COMMAND
+			l_clone: GIT_CLONE_COMMAND
+			l_checkout: GIT_CHECKOUT_COMMAND
+			l_new: BOOLEAN
 		do
-			sync ("Installing", some_parameters, True)
-		end
-
-	update (some_parameters: DS_LIST [detachable STRING])
-			-- Update a package.
-		do
-			sync ("Updating", some_parameters, False)
+			l_new := not File_system.is_directory_readable (Eiffel_library_directory)
+			if l_new then
+				l_sync_message := "Installing"
+			else
+				l_sync_message := "Updating"
+			end
+			read_package
+			if package_read then
+				create l_message.make_empty
+				l_message.append_string (l_sync_message)
+				l_message.append_string (" package ")
+				l_message.append_string (package.name)
+				l_message.append_string (" version ")
+				l_message.append_string (package.version)
+				l_message.append_string ("...")
+				error_handler.report_info_message (l_message)
+				if attached package.dependencies.new_cursor as l_cursor then
+					from
+						l_cursor.start
+						create l_dependencies.make_equal
+						l_dependencies.extend_last (some_parameters)
+						if not l_dependencies.is_empty then
+							l_dependencies.remove_first
+						end
+					until
+						l_cursor.off
+					loop
+						l_dependency := l_cursor.key
+						if l_dependencies.is_empty or else l_dependencies.has (l_dependency) then
+							create l_message.make_empty
+							l_message.append_string (l_sync_message)
+							l_message.append_string (" dependency ")
+							l_message.append_string (l_dependency)
+							l_message.append_string ("...")
+							error_handler.report_info_message (l_message)
+							l_dir := File_system.pathname (eiffel_library_directory, l_dependency)
+							if File_system.is_directory_readable (l_dir) then
+								sync_update (l_cursor.key, l_cursor.item)
+							else
+								File_system.create_directory (eiffel_library_directory)
+								create l_clone.make_directory (l_cursor.item.repository, l_dir)
+								l_clone.execute
+								create l_checkout.make (l_cursor.item.branch)
+								l_checkout.set_directory (l_dir)
+								l_checkout.execute
+							end
+							if File_system.is_file_readable (File_system.pathname (l_dir, {EPM_PACKAGE_FILE_READER}.Package_file_name)) then
+								package_reader.set_directory (l_dir)
+								package_reader.read
+								if attached package_reader.package as l_package and then attached l_package.environment_variable as l_env then
+									Execution_environment.set_variable_value (l_env, File_system.pathname (File_system.cwd, l_dir))
+								end
+							end
+							l_script := File_system.pathname (l_dir, script_file)
+							if l_new and File_system.is_file_readable (l_script) then
+								create l_command.make (command (l_script))
+								l_command.execute
+							end
+						end
+						l_cursor.forth
+					end
+				end
+				if l_new and File_system.is_file_readable (script_file) then
+					create l_command.make (command (script_file))
+					l_command.execute
+				end
+				error_handler.report_info_message ("done")
+            end
 		end
 
 feature {NONE} -- Implementation
@@ -107,79 +174,6 @@ feature {NONE} -- Implementation
 			else
 				Result := a_script_name
 			end
-		end
-
-	sync (a_sync_message: STRING; some_parameters: DS_LIST [detachable STRING]; a_exec_scripts: BOOLEAN)
-			-- Sync (install or update) a package.
-		local
-			l_dependency, l_dir, l_message, l_script: STRING
-			l_dependencies: DS_LINKED_LIST [detachable STRING]
-			l_command: DP_SHELL_COMMAND
-			l_clone: GIT_CLONE_COMMAND
-			l_checkout: GIT_CHECKOUT_COMMAND
-		do
-			read_package
-			if package_read then
-				create l_message.make_empty
-				l_message.append_string (a_sync_message)
-				l_message.append_string (" package ")
-				l_message.append_string (package.name)
-				l_message.append_string (" version ")
-				l_message.append_string (package.version)
-				l_message.append_string ("...")
-				error_handler.report_info_message (l_message)
-				if attached package.dependencies.new_cursor as l_cursor then
-					from
-						l_cursor.start
-						create l_dependencies.make_equal
-						l_dependencies.extend_last (some_parameters)
-						if not l_dependencies.is_empty then
-							l_dependencies.remove_first
-						end
-					until
-						l_cursor.off
-					loop
-						l_dependency := l_cursor.key
-						if l_dependencies.is_empty or else l_dependencies.has (l_dependency) then
-							create l_message.make_empty
-							l_message.append_string (a_sync_message)
-							l_message.append_string (" dependency ")
-							l_message.append_string (l_dependency)
-							l_message.append_string ("...")
-							error_handler.report_info_message (l_message)
-							l_dir := File_system.pathname (eiffel_library_directory, l_dependency)
-							if File_system.is_directory_readable (l_dir) then
-								sync_update (l_cursor.key, l_cursor.item)
-							else
-								File_system.create_directory (eiffel_library_directory)
-								create l_clone.make_directory (l_cursor.item.repository, l_dir)
-								l_clone.execute
-								create l_checkout.make (l_cursor.item.branch)
-								l_checkout.set_directory (l_dir)
-								l_checkout.execute
-							end
-							if File_system.is_file_readable (File_system.pathname (l_dir, {EPM_PACKAGE_FILE_READER}.Package_file_name)) then
-								package_reader.set_directory (l_dir)
-								package_reader.read
-								if attached package_reader.package as l_package and then attached l_package.environment_variable as l_env then
-									Execution_environment.set_variable_value (l_env, File_system.pathname (File_system.cwd, l_dir))
-								end
-							end
-							l_script := File_system.pathname (l_dir, script_file)
-							if a_exec_scripts and File_system.is_file_readable (l_script) then
-								create l_command.make (command (l_script))
-								l_command.execute
-							end
-						end
-						l_cursor.forth
-					end
-				end
-				if a_exec_scripts and File_system.is_file_readable (script_file) then
-					create l_command.make (command (script_file))
-					l_command.execute
-				end
-				error_handler.report_info_message ("done")
-            end
 		end
 
 	read_package

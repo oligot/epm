@@ -8,7 +8,7 @@ epm lets you easily install Eiffel dependencies.
 
 For example, to install a package, run:
 
-    epm install gobo
+    epm sync gobo
 
 This will install gobo to `./eiffel_library/gobo`.
 That's it.
@@ -26,15 +26,11 @@ To compile epm, you will need:
 
 Your best friend at this stage is probably `epm --help`.
 
-To install a package:
+To install or update a package:
 
-    epm install gobo
+    epm sync gobo
 
 As you can see, packages can only be installed by name.
-
-To update a package, reference it by name:
-
-    epm update gobo
 
 ### Defining a package
 
@@ -52,7 +48,7 @@ This is similar to Node's `package.json`, or Ruby's `Gemfile`, and is useful for
 ```
 
 Put this under your project's root, listing all of your dependencies.
-When you run `epm install`, epm will read this `system.json` file, resolve all the relevant dependencies and install them.
+When you run `epm sync`, epm will read this `system.json` file, resolve all the relevant dependencies and install them.
 
 For now, `name`, `version` and `dependencies` are the only properties that are used by epm.
 For the moment, you can only point to packages by adding their Git URL in the dependency's property.
@@ -68,7 +64,7 @@ When tags or branches are available in the endpoint, you can specify them like t
 
 ### Installing dependencies
 
-Dependencies are installed locally via the `epm install` command.
+Dependencies are installed locally via the `epm sync` command.
 They are fetched and checked out in a local subdirectory called `./eiffel\_library`, for example:
 
 
@@ -77,7 +73,7 @@ They are fetched and checked out in a local subdirectory called `./eiffel\_libra
 /eiffel_library/json
 ```
 
-You can also install packages one at a time with `epm install json`
+You can also install packages one at a time with `epm sync json`
 
 ### Windows users
 
