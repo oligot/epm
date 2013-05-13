@@ -19,7 +19,8 @@ The idea is that epm does package management and package management only.
 For the moment, you have to compile epm on your computer.
 To compile epm, you will need:
 * A recent version of EiffelStudio (7.0 or newer)
-* A recent git version of Gobo with ecf (https://github.com/oligot/gobo/tree/epm)
+* A recent git version of Gobo (https://github.com/oligot/gobo/tree/epm)
+* Gobo ecf files (https://github.com/oligot/gobo-ecf)
 * The Eiffel JSON library compatible with the Gobo Eiffel Compiler (https://github.com/oligot/json/tree/gec)
 
 ### Usage

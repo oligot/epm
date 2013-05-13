@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "dependencies": {
     "gobo": "https://github.com/oligot/gobo.git#epm",
+    "gobo-ecf": "https://github.com/oligot/gobo-ecf.git",
     "json": "https://github.com/oligot/json.git#gec"
   },
   "engines": {
