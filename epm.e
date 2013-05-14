@@ -65,7 +65,7 @@ feature -- Basic operations
 			l_command: DP_SHELL_COMMAND
 			l_clone: GIT_CLONE_COMMAND
 			l_checkout: GIT_CHECKOUT_COMMAND
-			l_new: BOOLEAN
+			l_new, l_new_dependency: BOOLEAN
 		do
 			l_new := not File_system.is_directory_readable (Eiffel_library_directory)
 			if l_new then
@@ -103,15 +103,16 @@ feature -- Basic operations
 							l_message.append_string ("...")
 							error_handler.report_info_message (l_message)
 							l_dir := File_system.pathname (eiffel_library_directory, l_dependency)
-							if File_system.is_directory_readable (l_dir) then
-								sync_update (l_cursor.key, l_cursor.item)
-							else
+							l_new_dependency := not File_system.is_directory_readable (l_dir)
+							if l_new_dependency then
 								File_system.create_directory (eiffel_library_directory)
 								create l_clone.make_directory (l_cursor.item.repository, l_dir)
 								l_clone.execute
 								create l_checkout.make (l_cursor.item.branch)
 								l_checkout.set_directory (l_dir)
 								l_checkout.execute
+							else
+								sync_update (l_cursor.key, l_cursor.item)
 							end
 							if File_system.is_file_readable (File_system.pathname (l_dir, {EPM_PACKAGE_FILE_READER}.Package_file_name)) then
 								package_reader.set_directory (l_dir)
@@ -121,7 +122,7 @@ feature -- Basic operations
 								end
 							end
 							l_script := File_system.pathname (l_dir, script_file)
-							if l_new and File_system.is_file_readable (l_script) then
+							if l_new_dependency and File_system.is_file_readable (l_script) then
 								create l_command.make (command (l_script))
 								l_command.execute
 							end
