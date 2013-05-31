@@ -8,11 +8,16 @@ module.exports = function(grunt) {
       ge: ['epm', 'epm.h', 'epm.sh', 'epm1*']
     },
     compile: {
-      ise: {},
-      ge: {}
-    },
-    estudio: {
-      main: {}
+      ise: {
+        options: {
+          compiler: 'ise'
+        }
+      },
+      ge: {
+        options: {
+          compiler: 'ge'
+        }
+      }
     }
   });
 
