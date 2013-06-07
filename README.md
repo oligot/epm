@@ -22,6 +22,7 @@ To compile epm, you will need:
 * A recent git version of Gobo (https://github.com/oligot/gobo/tree/epm)
 * Gobo ecf files (https://github.com/oligot/gobo-ecf)
 * The Eiffel JSON library compatible with the Gobo Eiffel Compiler (https://github.com/oligot/json/tree/gec)
+The easiest way to get these dependencies is to run the script _bootstrap.sh_ on Unix and _bootstrap.bat_ on Windows.
 
 ### Usage
 
