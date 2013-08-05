@@ -1,5 +1,3 @@
-var path = require('path');
-
 module.exports = function(grunt) {
 
   grunt.initConfig({
@@ -21,8 +19,7 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-eiffel');
+  require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks);
   grunt.registerTask('default', ['clean:ise', 'compile:ise']);
   grunt.registerTask('ge', ['clean:ge', 'compile:ge']);
 };
