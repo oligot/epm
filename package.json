@@ -5,6 +5,11 @@
   "devDependencies": {
     "grunt": "0.4.x",
     "grunt-contrib-clean": "0.4.x",
-    "grunt-eiffel": "0.4.x"
+    "grunt-eiffel": "0.4.x",
+    "matchdep": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/oligot/epm.git"
   }
 }
