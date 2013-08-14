@@ -21,7 +21,7 @@
 		<library name="gobo-pattern" location="$EIFFEL_LIBRARY\gobo-ecf\ecf\gobo-pattern-safe.ecf" readonly="true"/>
 		<library name="gobo-structure" location="$EIFFEL_LIBRARY\gobo-ecf\ecf\gobo-structure-confident.ecf" readonly="true"/>
 		<library name="json" location="$EIFFEL_LIBRARY\json\library\json-safe.ecf" readonly="true"/>
-		<library name="epm-lib" location="lib\epm.ecf" readonly="false"/>
+		<library name="epm-lib" location="lib\epm-safe.ecf" readonly="false"/>
 		<cluster name="epm" location=".">
 			<option void_safety="initialization" syntax="standard">
 			</option>
