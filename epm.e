@@ -29,6 +29,8 @@ feature {NONE} -- Initialization
 			l_commands: DS_HASH_TABLE [PROCEDURE [ANY, TUPLE [DS_LIST [detachable STRING]]], STRING]
 		do
 			create error_handler.make_standard
+			create configuration.make_default
+			json.add_converter (create {JSON_EPM_CONFIGURATION_CONVERTER}.make)
 			create package_reader.make_with_error_handler (error_handler)
 			create l_package_converter.make
 			package := l_package_converter.object
@@ -67,7 +69,8 @@ feature -- Basic operations
 			l_checkout: GIT_CHECKOUT_COMMAND
 			l_new, l_new_dependency: BOOLEAN
 		do
-			l_new := not File_system.is_directory_readable (Eiffel_library_directory)
+			read_configuration
+			l_new := not File_system.is_directory_readable (configuration.directory)
 			if l_new then
 				l_sync_message := "Installing"
 			else
@@ -102,10 +105,10 @@ feature -- Basic operations
 							l_message.append_string (l_dependency)
 							l_message.append_string ("...")
 							error_handler.report_info_message (l_message)
-							l_dir := File_system.pathname (eiffel_library_directory, l_dependency)
+							l_dir := File_system.pathname (configuration.directory, l_dependency)
 							l_new_dependency := not File_system.is_directory_readable (l_dir)
 							if l_new_dependency then
-								File_system.create_directory (eiffel_library_directory)
+								File_system.create_directory (configuration.directory)
 								create l_clone.make_directory (l_cursor.item.repository, l_dir)
 								l_clone.execute
 								create l_checkout.make (l_cursor.item.branch)
@@ -143,6 +146,9 @@ feature {NONE} -- Implementation
 	error_handler: EPM_ERROR_HANDLER
 			-- Error handler
 
+	configuration: EPM_CONFIGURATION
+			-- Configuration
+
 	package_reader: EPM_PACKAGE_FILE_READER
 			-- Package reader
 
@@ -151,9 +157,6 @@ feature {NONE} -- Implementation
 
 	package_read: BOOLEAN
 			-- Has the package been read ?
-
-	Eiffel_library_directory: STRING = "eiffel_library"
-			-- Eiffel library directory
 
 	script_file: STRING
 			-- Install script file name.
@@ -177,6 +180,18 @@ feature {NONE} -- Implementation
 			end
 		end
 
+	read_configuration
+			-- Read the configuration.
+		local
+			l_reader: EPM_CONFIGURATION_FILE_READER
+		do
+			create l_reader.make (error_handler)
+			l_reader.read
+			if attached l_reader.configuration as l_configuration then
+				configuration := l_configuration
+			end
+		end
+
 	read_package
 			-- Read the package definition.
 		do
@@ -195,7 +210,7 @@ feature {NONE} -- Implementation
 			l_checkout: GIT_CHECKOUT_COMMAND
 			l_merge: GIT_MERGE_COMMAND
 		do
-			l_dir := File_system.pathname (eiffel_library_directory, a_package)
+			l_dir := File_system.pathname (configuration.directory, a_package)
 			create l_fetch.make
 			l_fetch.set_directory (l_dir)
 			l_fetch.execute

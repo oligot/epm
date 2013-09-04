@@ -1,7 +1,7 @@
 epm
 ===
 
-### Introduction
+## Introduction
 
 epm is an Eiffel Package Manager that is based on [npm](http://npmjs.org/) and [bower](http://twitter.github.com/bower/).
 epm lets you easily install Eiffel dependencies.
@@ -14,7 +14,7 @@ This will install gobo to `./eiffel_library/gobo`.
 That's it.
 The idea is that epm does package management and package management only.
 
-### Installing epm
+## Installing epm
 
 For the moment, you have to compile epm on your computer.
 To compile epm, you will need:
@@ -25,7 +25,7 @@ To compile epm, you will need:
 
 The easiest way to get these dependencies is to run the script _bootstrap.sh_ on Unix and _bootstrap.bat_ on Windows.
 
-### Usage
+## Usage
 
 Your best friend at this stage is probably `epm --help`.
 
@@ -35,7 +35,18 @@ To install or update a package:
 
 As you can see, packages can only be installed by name.
 
-### Defining a package
+## Configuration
+
+epm can be configured using JSON in a `.epmrc` file.
+`directory` is the path in which installed components should be saved.
+If not specified this defaults to `eiffel_library`.
+
+```json
+{
+   "directory": "epm_library"
+}
+
+## Defining a package
 
 You can create a `system.json` file in your project's root, specifying all of its dependencies.
 This is similar to Node's `package.json`, or Ruby's `Gemfile`, and is useful for locking down a project's dependencies.
@@ -65,10 +76,10 @@ When tags or branches are available in the endpoint, you can specify them like t
 }
 ```
 
-### Installing dependencies
+## Installing dependencies
 
 Dependencies are installed locally via the `epm sync` command.
-They are fetched and checked out in a local subdirectory called `./eiffel\_library`, for example:
+All package contents are installed in the `./eiffel\_library` directory by default.
 
 
 ```
@@ -78,14 +89,14 @@ They are fetched and checked out in a local subdirectory called `./eiffel\_libra
 
 You can also install packages one at a time with `epm sync json`
 
-### Windows users
+## Windows users
 
 People may experience problems using epm on Windows because [msysgit](http://code.google.com/p/msysgit/) must be installed correctly.
 Be sure to check the option shown above, otherwise it will simply not work:
 
 ![msysgit](http://f.cl.ly/items/2V2O3i1p3R2F1r2v0a12/mysgit.png)
 
-### Authors
+## Authors
 
 + [@oligot](http://github.com/oligot)
 
