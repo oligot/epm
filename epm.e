@@ -64,7 +64,7 @@ feature -- Basic operations
 		local
 			l_dependency, l_dir, l_message, l_script, l_sync_message: STRING
 			l_dependencies: DS_LINKED_LIST [detachable STRING]
-			l_command: DP_SHELL_COMMAND
+			l_command: KL_SHELL_COMMAND
 			l_clone: GIT_CLONE_COMMAND
 			l_checkout: GIT_CHECKOUT_COMMAND
 			l_new, l_new_dependency: BOOLEAN
@@ -105,7 +105,7 @@ feature -- Basic operations
 							l_message.append_string (l_dependency)
 							l_message.append_string ("...")
 							error_handler.report_info_message (l_message)
-							l_dir := File_system.pathname (configuration.directory, l_dependency)
+							l_dir := File_system.pathname (configuration.directory, l_dependency).as_attached
 							l_new_dependency := not File_system.is_directory_readable (l_dir)
 							if l_new_dependency then
 								File_system.create_directory (configuration.directory)
@@ -124,7 +124,7 @@ feature -- Basic operations
 									Execution_environment.set_variable_value (l_env, File_system.pathname (File_system.cwd, l_dir))
 								end
 							end
-							l_script := File_system.pathname (l_dir, script_file)
+							l_script := File_system.pathname (l_dir, script_file).as_attached
 							if l_new_dependency and File_system.is_file_readable (l_script) then
 								create l_command.make (command (l_script))
 								l_command.execute
@@ -210,7 +210,7 @@ feature {NONE} -- Implementation
 			l_checkout: GIT_CHECKOUT_COMMAND
 			l_merge: GIT_MERGE_COMMAND
 		do
-			l_dir := File_system.pathname (configuration.directory, a_package)
+			l_dir := File_system.pathname (configuration.directory, a_package).as_attached
 			create l_fetch.make
 			l_fetch.set_directory (l_dir)
 			l_fetch.execute

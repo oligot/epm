@@ -50,7 +50,7 @@ feature -- Basic operations
 			l_cwd: detachable STRING
 			l_splitter: ST_SPLITTER
 			l_command: STRING
-			l_shell_command: DP_SHELL_COMMAND
+			l_shell_command: KL_SHELL_COMMAND
 		do
 			if attached directory as l_directory then
 				l_cwd := File_system.cwd

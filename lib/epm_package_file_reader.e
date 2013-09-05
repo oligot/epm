@@ -18,7 +18,7 @@ feature {NONE} -- Initialization
 	make
 		do
 			create error_handler.make_standard
-			directory := File_system.cwd
+			directory := File_system.cwd.as_attached
 		end
 
 	make_with_error_handler (an_error_handler: like error_handler)
@@ -55,22 +55,24 @@ feature -- Basic operations
 			l_file: KL_TEXT_INPUT_FILE
 			l_count: INTEGER
 			l_parser: JSON_PARSER
+			l_content: STRING
 		do
 			create l_file.make (File_system.pathname (directory, Package_file_name))
 			l_count := l_file.count
 			l_file.open_read
 			if l_file.is_open_read then
 				l_file.read_string (l_count)
-				create l_parser.make_parser (l_file.last_string)
+				l_content := l_file.last_string.as_attached
+				create l_parser.make_parser (l_content)
 				if attached l_parser.parse as jv and l_parser.is_parsed then
 					if attached {EPM_PACKAGE} json.object (jv, "EPM_PACKAGE") as l_package then
 						package := l_package
 					end
 				else
-					error_handler.report_error_message ("Unable to parse " + l_file.last_string)
+					error_handler.report_error_message ("Unable to parse " + l_content)
                 end
 			else
-				error_handler.report_error_message ("Unable to open file " + l_file.name)
+				error_handler.report_error_message ("Unable to open file " + l_file.name.as_attached)
 			end
 		end
 
