@@ -45,6 +45,7 @@ If not specified this defaults to `eiffel_library`.
 {
    "directory": "epm_library"
 }
+```
 
 ## Defining a package
 
