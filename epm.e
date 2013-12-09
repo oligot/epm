@@ -111,12 +111,12 @@ feature -- Basic operations
 								File_system.create_directory (configuration.directory)
 								create l_clone.make_directory (l_cursor.item.repository, l_dir)
 								l_clone.execute
-								create l_checkout.make (l_cursor.item.branch)
-								l_checkout.set_directory (l_dir)
-								l_checkout.execute
 							else
 								sync_update (l_cursor.key, l_cursor.item)
 							end
+							create l_checkout.make (l_cursor.item.branch)
+							l_checkout.set_directory (l_dir)
+							l_checkout.execute
 							if File_system.is_file_readable (File_system.pathname (l_dir, {EPM_PACKAGE_FILE_READER}.Package_file_name)) then
 								package_reader.set_directory (l_dir)
 								package_reader.read
@@ -206,20 +206,16 @@ feature {NONE} -- Implementation
 			-- Update the local repository of `a_dependency'.
 		local
 			l_dir: STRING_8
-			l_fetch: GIT_FETCH_COMMAND
 			l_checkout: GIT_CHECKOUT_COMMAND
-			l_merge: GIT_MERGE_COMMAND
+			l_pull: GIT_PULL_COMMAND
 		do
 			l_dir := File_system.pathname (configuration.directory, a_package).as_attached
-			create l_fetch.make
-			l_fetch.set_directory (l_dir)
-			l_fetch.execute
-			create l_checkout.make (a_dependency.branch)
+			create l_checkout.make_master
 			l_checkout.set_directory (l_dir)
 			l_checkout.execute
-			create l_merge.make ("origin/" + a_dependency.branch)
-			l_merge.set_directory (l_dir)
-			l_merge.execute
+			create l_pull.make
+			l_pull.set_directory (l_dir)
+			l_pull.execute
 		end
 
 end

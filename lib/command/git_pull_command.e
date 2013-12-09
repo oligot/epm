@@ -1,9 +1,9 @@
 note
-	description: "Git fetch command."
+	description: "Git pull command."
 	author: "Olivier Ligot"
 
 class
-	GIT_FETCH_COMMAND
+	GIT_PULL_COMMAND
 
 inherit
 	GIT_COMMAND
@@ -20,7 +20,7 @@ feature {NONE} -- Initialization
 
 feature -- Access
 
-	name: STRING = "fetch"
+	name: STRING = "pull"
 			-- Git subcommand name
 
 end
