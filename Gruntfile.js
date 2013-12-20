@@ -5,6 +5,10 @@ module.exports = function(grunt) {
       ise: ['EIFGENs'],
       ge: ['epm', 'epm.h', 'epm.sh', 'epm1*']
     },
+    estudio: {
+      main: {
+      }
+    },
     compile: {
       ise: {
         options: {
